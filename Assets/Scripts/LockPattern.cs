@@ -11,11 +11,15 @@ public class LockPattern : MonoBehaviour
 
     private List<CircleIdentifier> lines;
 
-    private GameObject lineOnEdit;
-    private RectTransform lineOnEditRects;
-    private CircleIdentifier circleOnEdit;
+    private GameObject lineOnEdit; //current active line
+    private RectTransform lineOnEditRcTs; //RectTransform of the active line, used for positioning and rotation
+    private CircleIdentifier circleOnEdit; //circle currently being connected by the line
 
     private bool unlocking;
+
+    new bool enabled = true;
+
+    [SerializeField] private float howLongToDisappear = 1.5f;
 
     // Start is called before the first frame update
     void Start()
@@ -23,6 +27,7 @@ public class LockPattern : MonoBehaviour
         circles = new Dictionary<int, CircleIdentifier>();
         lines = new List<CircleIdentifier>();
 
+        //assign ID
         for (int i = 0; i < transform.childCount; i++)
         {
             var circle = transform.GetChild(i);
@@ -35,12 +40,25 @@ public class LockPattern : MonoBehaviour
         }
     }
 
-    // Update is called once per frame
     void Update()
     {
-        
+        if(enabled == false)
+        {
+            return;
+        }
+
+        if(unlocking)
+        {
+            Vector3 mousePos = canvas.transform.InverseTransformPoint(Input.mousePosition);
+
+            lineOnEditRcTs.sizeDelta = new Vector2(lineOnEditRcTs.sizeDelta.x, Vector3.Distance(mousePos, circleOnEdit.transform.localPosition));
+
+            lineOnEditRcTs.rotation = Quaternion.FromToRotation(Vector3.up,
+                (mousePos - circleOnEdit.transform.localPosition).normalized);
+        }
     }
 
+    //instantiates a new line, and stores it in the lines list.
     GameObject CreateLine(Vector3 pos, int id)
     {
         var line = GameObject.Instantiate(linePrefab, canvas.transform);
@@ -66,23 +84,80 @@ public class LockPattern : MonoBehaviour
             }
         }
 
+        lineOnEdit = CreateLine(circle.transform.localPosition, circle.id);
+        lineOnEditRcTs = lineOnEdit.GetComponent<RectTransform>();
+        circleOnEdit = circle;
+    }
 
+    //destroy and resets the line editing references
+    IEnumerator Release()
+    {
+        print("Release being called");
+        enabled = false;
+
+        yield return new WaitForSeconds(howLongToDisappear);
+
+        foreach(var circle in circles)
+        {
+            circle.Value.GetComponent<UnityEngine.UI.Image>().color = Color.white; //Back to [WHITE]
+            circle.Value.GetComponent<Animator>().enabled = false;
+        }
+
+
+        foreach (var line in lines)
+        {
+            Destroy(line.gameObject);
+        }
+
+        lines.Clear();
+
+        lineOnEdit = null;
+        lineOnEditRcTs = null;
+        circleOnEdit = null;
+
+        enabled = true;
+    }
+
+    void EnableColorFade(Animator anim)
+    {
+        anim.enabled = true;
+        anim.Rebind();
     }
 
     public void OnMouseEnterCircle(CircleIdentifier idf)
     {
-        Debug.Log(idf.id);
+        if (enabled == false)
+        {
+            return;
+        }
+
+        if (unlocking)
+        {
+            lineOnEditRcTs.sizeDelta = new Vector2(lineOnEditRcTs.sizeDelta.x, Vector3.Distance(circleOnEdit.transform.localPosition, idf.transform.localPosition));
+            lineOnEditRcTs.rotation = Quaternion.FromToRotation(
+                Vector3.up,
+                (idf.transform.localPosition - circleOnEdit.transform.localPosition).normalized
+            );
+
+            TrySetLineEdit(idf);
+        }
+
     }
 
     public void OnMouseExitCircle(CircleIdentifier idf)
     {
-        Debug.Log(idf.id);
-
+        if (enabled == false)
+        {
+            return;
+        }
     }
 
     public void OnMouseDownCircle(CircleIdentifier idf)
     {
-        Debug.Log(idf.id);
+        if (enabled == false)
+        {
+            return;
+        }
 
         unlocking = true;
 
@@ -92,8 +167,32 @@ public class LockPattern : MonoBehaviour
 
     public void OnMouseUpCircle(CircleIdentifier idf)
     {
-        Debug.Log(idf.id);
+        if (enabled == false)
+        {
+            return;
+        }
+
+        if (unlocking)
+        {
+            foreach(var line in lines)
+            {
+                EnableColorFade(circles[line.id].gameObject.GetComponent<Animator>());
+            }
+
+            Destroy(lines[lines.Count - 1].gameObject);
+
+            lines.RemoveAt(lines.Count - 1);
+
+            foreach(var line in lines)
+            {
+                EnableColorFade(line.GetComponent<Animator>());
+            }
+
+            StartCoroutine(Release());
+        }
 
         unlocking = false;
+
+
     }
 }
