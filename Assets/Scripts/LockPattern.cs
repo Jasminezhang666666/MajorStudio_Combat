@@ -24,18 +24,25 @@ public class LockPattern : MonoBehaviour
         circles = new Dictionary<int, CircleIdentifier>();
         lines = new List<CircleIdentifier>();
 
-        // Assign IDs
+        // Assign IDs and disable animators on circles
         for (int i = 0; i < transform.childCount; i++)
         {
             var circle = transform.GetChild(i);
 
             var identifier = circle.GetComponent<CircleIdentifier>();
-
             identifier.id = i;
 
             circles.Add(i, identifier);
+
+            // Disable the Animator component
+            Animator circleAnimator = circle.GetComponent<Animator>();
+            if (circleAnimator != null)
+            {
+                circleAnimator.enabled = false;
+            }
         }
     }
+
 
     void Update()
     {
@@ -75,10 +82,18 @@ public class LockPattern : MonoBehaviour
         var lineidf = line.AddComponent<CircleIdentifier>();
         lineidf.id = id;
 
+        // Disable the Animator component
+        Animator lineAnimator = line.GetComponent<Animator>();
+        if (lineAnimator != null)
+        {
+            lineAnimator.enabled = false;
+        }
+
         lines.Add(lineidf);
 
         return line;
     }
+
 
     void TrySetLineEdit(CircleIdentifier circle)
     {
@@ -124,9 +139,13 @@ public class LockPattern : MonoBehaviour
 
     void EnableColorFade(Animator anim)
     {
-        anim.enabled = true;
-        anim.Rebind();
+        if (anim != null)
+        {
+            anim.enabled = true;
+            anim.Rebind();
+        }
     }
+
 
     public void OnMouseEnterCircle(CircleIdentifier idf)
     {
@@ -179,17 +198,25 @@ public class LockPattern : MonoBehaviour
 
         if (unlocking)
         {
+            // Enable animations on circles
             foreach (var line in lines)
             {
-                EnableColorFade(circles[line.id].gameObject.GetComponent<Animator>());
+                Animator circleAnimator = circles[line.id].GetComponent<Animator>();
+                EnableColorFade(circleAnimator);
             }
 
-            Destroy(lines[lines.Count - 1].gameObject);
-            lines.RemoveAt(lines.Count - 1);
-
+            // Enable animations on lines
             foreach (var line in lines)
             {
-                EnableColorFade(line.GetComponent<Animator>());
+                Animator lineAnimator = line.GetComponent<Animator>();
+                EnableColorFade(lineAnimator);
+            }
+
+            // Remove the last line (the one still being drawn)
+            if (lines.Count > 0)
+            {
+                Destroy(lines[lines.Count - 1].gameObject);
+                lines.RemoveAt(lines.Count - 1);
             }
 
             StartCoroutine(Release());
