@@ -126,6 +126,8 @@ public class LockPattern : MonoBehaviour
 
     public void OnMouseEnterCircle(CircleIdentifier idf)
     {
+        print("On mouse Enter CIrcle");
+
         if (enabled == false)
         {
             return;
@@ -154,6 +156,9 @@ public class LockPattern : MonoBehaviour
 
     public void OnMouseDownCircle(CircleIdentifier idf)
     {
+        print("On mouse down CIrcle");
+
+
         if (enabled == false)
         {
             return;
