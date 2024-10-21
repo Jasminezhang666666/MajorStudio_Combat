@@ -19,12 +19,16 @@ public class LockPattern : MonoBehaviour
 
     [SerializeField] private float howLongToDisappear = 1.5f;
 
+    // List to store connected circle IDs in order
+    private List<int> connectedCircleIDs;
+
     void Start()
     {
         circles = new Dictionary<int, CircleIdentifier>();
         lines = new List<CircleIdentifier>();
+        connectedCircleIDs = new List<int>(); 
 
-        // Assign IDs and disable animators on circles
+        // Assign IDs
         for (int i = 0; i < transform.childCount; i++)
         {
             var circle = transform.GetChild(i);
@@ -42,7 +46,6 @@ public class LockPattern : MonoBehaviour
             }
         }
     }
-
 
     void Update()
     {
@@ -94,7 +97,6 @@ public class LockPattern : MonoBehaviour
         return line;
     }
 
-
     void TrySetLineEdit(CircleIdentifier circle)
     {
         foreach (var line in lines)
@@ -104,6 +106,9 @@ public class LockPattern : MonoBehaviour
                 return;
             }
         }
+
+        // Add the circle ID to the connectedCircleIDs list
+        connectedCircleIDs.Add(circle.id);
 
         Vector2 startPos = GetLocalPointInCanvas(circle.transform);
         lineOnEdit = CreateLine(startPos, circle.id);
@@ -129,6 +134,7 @@ public class LockPattern : MonoBehaviour
         }
 
         lines.Clear();
+        connectedCircleIDs.Clear(); // Clear the list after use
 
         lineOnEdit = null;
         lineOnEditRcTs = null;
@@ -145,7 +151,6 @@ public class LockPattern : MonoBehaviour
             anim.Rebind();
         }
     }
-
 
     public void OnMouseEnterCircle(CircleIdentifier idf)
     {
@@ -186,6 +191,9 @@ public class LockPattern : MonoBehaviour
 
         unlocking = true;
 
+        // Clear the connectedCircleIDs list
+        connectedCircleIDs.Clear();
+
         TrySetLineEdit(idf);
     }
 
@@ -205,6 +213,13 @@ public class LockPattern : MonoBehaviour
                 EnableColorFade(circleAnimator);
             }
 
+            // Enable animation on the last circle (circleOnEdit)
+            if (circleOnEdit != null)
+            {
+                Animator lastCircleAnimator = circleOnEdit.GetComponent<Animator>();
+                EnableColorFade(lastCircleAnimator);
+            }
+
             // Enable animations on lines
             foreach (var line in lines)
             {
@@ -219,13 +234,25 @@ public class LockPattern : MonoBehaviour
                 lines.RemoveAt(lines.Count - 1);
             }
 
+            // Get and print the connected pattern
+            GetConnectedPattern();
+
             StartCoroutine(Release());
         }
 
         unlocking = false;
     }
 
-    // Helper function to get the local point in the Canvas's coordinate space
+    // HERE HERE
+    public int[] GetConnectedPattern()
+    {
+        // Print out the connected circle IDs
+        Debug.Log("Connected Circle IDs: " + string.Join(", ", connectedCircleIDs));
+
+        return connectedCircleIDs.ToArray();
+    }
+
+    // to get the local point in the Canvas's coordinate space
     Vector2 GetLocalPointInCanvas(Transform objTransform)
     {
         Vector2 localPoint;
