@@ -1,4 +1,6 @@
 using UnityEngine;
+using System.Collections;
+
 
 public class LeftPerson : MonoBehaviour
 {
@@ -6,36 +8,37 @@ public class LeftPerson : MonoBehaviour
     public Transform centerSpot;
     public Transform rightSpot;
 
-    // Current position index: 0 = left, 1 = center, 2 = right
     private int currentPositionIndex = 1;
-
     private Transform[] spots;
 
-    // Time to wait before allowing another move
     [SerializeField] private float stopMovingTime = 1.0f;
     private float nextMoveTime = 0f;
+
+    // Health of the LeftPerson
+    [SerializeField] private int health = 10;
+
+    // Duration for which the player turns red when hit
+    [SerializeField] private float damageFlashDuration = 0.2f;
+
+    private SpriteRenderer spriteRenderer;
 
     private void Start()
     {
         spots = new Transform[3] { leftSpot, centerSpot, rightSpot };
-
-        // starting position at the center
         transform.position = spots[currentPositionIndex].position;
+        spriteRenderer = GetComponent<SpriteRenderer>();
     }
 
     private void Update()
     {
-        // time check
         if (Time.time >= nextMoveTime)
         {
-            // Move left
             if (Input.GetKeyDown(KeyCode.A) && currentPositionIndex > 0)
             {
                 currentPositionIndex--;
                 MoveToSpot();
             }
 
-            // Move right
             if (Input.GetKeyDown(KeyCode.D) && currentPositionIndex < spots.Length - 1)
             {
                 currentPositionIndex++;
@@ -48,5 +51,39 @@ public class LeftPerson : MonoBehaviour
     {
         transform.position = spots[currentPositionIndex].position;
         nextMoveTime = Time.time + stopMovingTime;
+    }
+
+    public int GetCurrentPositionIndex()
+    {
+        return currentPositionIndex;
+    }
+
+    public void TakeDamage(int damage)
+    {
+        health -= damage;
+
+        if (health <= 0)
+        {
+            // GAME OVER!!!!!!!
+
+
+
+
+            Debug.Log("Player has been defeated!");
+        }
+        else
+        {
+            // Flash red to indicate damage
+            StartCoroutine(FlashRed());
+        }
+    }
+
+    private IEnumerator FlashRed()
+    {
+        spriteRenderer.color = Color.red;
+
+        yield return new WaitForSeconds(damageFlashDuration);
+
+        spriteRenderer.color = Color.white;
     }
 }
