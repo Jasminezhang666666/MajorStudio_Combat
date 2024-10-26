@@ -268,7 +268,7 @@ GameObject:
   - component: {fileID: 335657485}
   - component: {fileID: 335657486}
   m_Layer: 0
-  m_Name: Sward
+  m_Name: Sword
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
