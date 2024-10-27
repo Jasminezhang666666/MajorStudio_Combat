@@ -9,13 +9,11 @@ public class BossAttack : MonoBehaviour
 
     private Camera[] cameras;
 
+    private bool hasCollided = false; 
+
     private void Start()
     {
-        // Find all cameras tagged as "MainCamera"
-        cameras = GameObject.FindGameObjectsWithTag("MainCamera")
-            .Select(go => go.GetComponent<Camera>())
-            .Where(cam => cam != null)
-            .ToArray();
+        cameras = Camera.allCameras;
 
         Rigidbody rb = GetComponent<Rigidbody>();
         rb.useGravity = false;
@@ -23,7 +21,7 @@ public class BossAttack : MonoBehaviour
 
     public void SetTarget(Vector3 target)
     {
-        // Calculate direction towards the target (X, Y, and Z) and normalize it
+        // Calculate direction towards the target and normalize it
         direction = (target - transform.position).normalized;
 
         // Set the velocity of the Rigidbody to move continuously in the target direction
@@ -57,19 +55,24 @@ public class BossAttack : MonoBehaviour
 
     private void OnCollisionEnter(Collision collision)
     {
-        // Check if the projectile hits the player (LeftPerson). They are both 3D rigid body and collider now.
+        // Check if the projectile hits the player (LeftPerson)
         if (collision.gameObject.CompareTag("Player"))
         {
             Debug.Log("Projectile hit the player!");
 
-            // LeftPerson TakeDamage anim
+            // LeftPerson takes damage
             LeftPerson leftPerson = collision.gameObject.GetComponent<LeftPerson>();
             if (leftPerson != null)
             {
-                leftPerson.TakeDamage(1); // Adjust the damage amount as needed!!!!!!!!!
+                leftPerson.TakeDamage(10); // Deduct 10 HP
             }
 
             // Destroy the projectile after it hits the player
+            Destroy(gameObject);
+        }
+        else if (collision.gameObject.CompareTag("Ground"))
+        {
+            // Destroy the projectile if it hits the ground or any other object
             Destroy(gameObject);
         }
     }

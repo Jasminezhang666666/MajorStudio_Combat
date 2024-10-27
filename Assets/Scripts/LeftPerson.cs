@@ -1,6 +1,6 @@
 using UnityEngine;
 using System.Collections;
-
+using UnityEngine.UI; 
 
 public class LeftPerson : MonoBehaviour
 {
@@ -14,8 +14,10 @@ public class LeftPerson : MonoBehaviour
     [SerializeField] private float stopMovingTime = 1.0f;
     private float nextMoveTime = 0f;
 
-    // Health of the LeftPerson
-    [SerializeField] private int health = 10;
+    public int health = 100; 
+    private int maxHealth;
+
+    public Slider healthSlider; 
 
     // Duration for which the player turns red when hit
     [SerializeField] private float damageFlashDuration = 0.2f;
@@ -27,6 +29,16 @@ public class LeftPerson : MonoBehaviour
         spots = new Transform[3] { leftSpot, centerSpot, rightSpot };
         transform.position = spots[currentPositionIndex].position;
         spriteRenderer = GetComponent<SpriteRenderer>();
+
+        // Initialize health and maxHealth
+        maxHealth = health;
+
+        // Initialize the health slider
+        if (healthSlider != null)
+        {
+            healthSlider.maxValue = maxHealth;
+            healthSlider.value = health;
+        }
     }
 
     private void Update()
@@ -60,16 +72,22 @@ public class LeftPerson : MonoBehaviour
 
     public void TakeDamage(int damage)
     {
+        Debug.Log($"Player health before damage: {health}");
         health -= damage;
+        health = Mathf.Max(health, 0); 
 
+        // Update health slider
+        if (healthSlider != null)
+        {
+            healthSlider.value = health;
+        }
+
+        Debug.Log($"Player health after damage: {health}");
         if (health <= 0)
         {
-            // GAME OVER!!!!!!!
-
-
-
-
+            // GAME OVER
             Debug.Log("Player has been defeated!");
+            // Add code for player defeat (e.g., restart level, show game over screen)
         }
         else
         {

@@ -1,34 +1,34 @@
+using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
+using UnityEngine.UI;
 
 public class LockPattern : MonoBehaviour
 {
-    public GameObject linePrefab;
-    public Canvas canvas;
+    public GameObject linePrefab;        
+    public Canvas canvas;          
 
-    private Dictionary<int, CircleIdentifier> circles;
-    private List<CircleIdentifier> lines;
+    private Dictionary<int, CircleIdentifier> circles; 
+    private List<CircleIdentifier> lines;             
 
-    private GameObject lineOnEdit;
+    private GameObject lineOnEdit;      
     private RectTransform lineOnEditRcTs;
     private CircleIdentifier circleOnEdit;
 
-    private bool unlocking;
-    new bool enabled = true;
+    private bool unlocking;            
+    private bool enabled = true;         
 
-    [SerializeField] private float howLongToDisappear = 1.5f;
+    [SerializeField] private float howLongToDisappear = 1.5f; 
 
-    // List to store connected circle IDs in order
-    private List<int> connectedCircleIDs;
+    private List<int> connectedCircleIDs; 
 
     void Start()
     {
         circles = new Dictionary<int, CircleIdentifier>();
         lines = new List<CircleIdentifier>();
-        connectedCircleIDs = new List<int>(); 
+        connectedCircleIDs = new List<int>();
 
-        // Assign IDs
+        // Assign IDs to circles and initialize them
         for (int i = 0; i < transform.childCount; i++)
         {
             var circle = transform.GetChild(i);
@@ -76,14 +76,14 @@ public class LockPattern : MonoBehaviour
 
     GameObject CreateLine(Vector2 pos, int id)
     {
-        var line = GameObject.Instantiate(linePrefab, canvas.transform);
+        var line = Instantiate(linePrefab, canvas.transform);
 
         var lineRcTs = line.GetComponent<RectTransform>();
         lineRcTs.pivot = new Vector2(0.5f, 0f); // Set pivot to top-center
         lineRcTs.anchoredPosition = pos;
 
-        var lineidf = line.AddComponent<CircleIdentifier>();
-        lineidf.id = id;
+        var lineIdentifier = line.AddComponent<CircleIdentifier>();
+        lineIdentifier.id = id;
 
         // Disable the Animator component
         Animator lineAnimator = line.GetComponent<Animator>();
@@ -92,7 +92,7 @@ public class LockPattern : MonoBehaviour
             lineAnimator.enabled = false;
         }
 
-        lines.Add(lineidf);
+        lines.Add(lineIdentifier);
 
         return line;
     }
@@ -124,7 +124,7 @@ public class LockPattern : MonoBehaviour
 
         foreach (var circle in circles)
         {
-            circle.Value.GetComponent<UnityEngine.UI.Image>().color = Color.white;
+            circle.Value.GetComponent<Image>().color = Color.white;
             circle.Value.GetComponent<Animator>().enabled = false;
         }
 
@@ -234,8 +234,23 @@ public class LockPattern : MonoBehaviour
                 lines.RemoveAt(lines.Count - 1);
             }
 
-            // Get and print the connected pattern
-            GetConnectedPattern();
+            // Get the connected pattern
+            int[] playerPattern = GetConnectedPattern();
+
+            // Check the pattern with the SpellManager
+            SpellManager spellManager = FindObjectOfType<SpellManager>();
+            if (spellManager != null)
+            {
+                // Deduct mana here
+                spellManager.DeductMana();
+
+                // Check if the pattern matches any spell
+                bool spellMatched = spellManager.CheckPattern(playerPattern);
+                if (!spellMatched)
+                {
+                    spellManager.OnSpellFailed();
+                }
+            }
 
             StartCoroutine(Release());
         }
@@ -243,16 +258,13 @@ public class LockPattern : MonoBehaviour
         unlocking = false;
     }
 
-    // HERE HERE
     public int[] GetConnectedPattern()
     {
-        // Print out the connected circle IDs
-        Debug.Log("Connected Circle IDs: " + string.Join(", ", connectedCircleIDs));
-
+        // Return the connected circle IDs as an array
         return connectedCircleIDs.ToArray();
     }
 
-    // to get the local point in the Canvas's coordinate space
+    // Helper method to get the local point in the Canvas's coordinate space
     Vector2 GetLocalPointInCanvas(Transform objTransform)
     {
         Vector2 localPoint;
