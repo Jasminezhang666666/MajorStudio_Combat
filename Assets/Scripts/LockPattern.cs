@@ -20,7 +20,9 @@ public class LockPattern : MonoBehaviour
 
     [SerializeField] private float howLongToDisappear = 1.5f; 
 
-    private List<int> connectedCircleIDs; 
+    private List<int> connectedCircleIDs;
+
+    public RightPerson rightPerson;
 
     void Start()
     {
@@ -152,6 +154,14 @@ public class LockPattern : MonoBehaviour
         }
     }
 
+    public void OnMouseExitCircle(CircleIdentifier idf)
+    {
+        if (!enabled)
+        {
+            return;
+        }
+    }
+    
     public void OnMouseEnterCircle(CircleIdentifier idf)
     {
         if (!enabled)
@@ -171,16 +181,12 @@ public class LockPattern : MonoBehaviour
             lineOnEditRcTs.rotation = Quaternion.FromToRotation(Vector3.up, direction.normalized);
 
             TrySetLineEdit(idf);
+
+            // Update the sprite in RightPerson
+            rightPerson.UpdateSprite(idf.id);
         }
     }
 
-    public void OnMouseExitCircle(CircleIdentifier idf)
-    {
-        if (!enabled)
-        {
-            return;
-        }
-    }
 
     public void OnMouseDownCircle(CircleIdentifier idf)
     {
