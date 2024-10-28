@@ -161,7 +161,7 @@ public class LockPattern : MonoBehaviour
             return;
         }
     }
-    
+
     public void OnMouseEnterCircle(CircleIdentifier idf)
     {
         if (!enabled)
@@ -182,11 +182,10 @@ public class LockPattern : MonoBehaviour
 
             TrySetLineEdit(idf);
 
-            // Update the sprite in RightPerson
-            rightPerson.UpdateSprite(idf.id);
+            // Update the sprite in RightPerson with a delay
+            rightPerson.UpdateSpriteWithDelay(idf.id);
         }
     }
-
 
     public void OnMouseDownCircle(CircleIdentifier idf)
     {
