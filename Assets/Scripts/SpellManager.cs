@@ -28,7 +28,7 @@ public class SpellManager : MonoBehaviour
 
     private void AddRandomSpellToUI()
     {
-        Debug.Log("Attempting to add a random spell to the UI.");
+        //Debug.Log("Attempting to add a random spell to the UI.");
         // Choose a random spell not already displayed
         List<Spell> availableSpells = new List<Spell>(allSpells);
         availableSpells.RemoveAll(s => currentSpells.Contains(s));
