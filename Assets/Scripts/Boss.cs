@@ -48,7 +48,7 @@ public class Boss : MonoBehaviour
         // Get the LeftPerson's current position index and its target position
         int playerPositionIndex = leftPerson.GetCurrentPositionIndex();
 
-        Vector3 targetPosition = centerSpot.position;
+        Vector3 targetPosition;
 
         if (playerPositionIndex == 0)
         {
@@ -57,10 +57,10 @@ public class Boss : MonoBehaviour
         else if (playerPositionIndex == 2)
         {
             targetPosition = rightSpot.position;
+        } else
+        {
+            targetPosition = centerSpot.position;
         }
-
-        // Maintain the Z-axis difference between the boss and the player
-        targetPosition.z = leftPerson.transform.position.z;
 
         // Instantiate the projectile
         GameObject projectile = Instantiate(projectilePrefab, transform.position, Quaternion.identity);
@@ -71,7 +71,7 @@ public class Boss : MonoBehaviour
     {
         currentHealth -= damage;
         currentHealth = Mathf.Max(currentHealth, 0); // Ensure health doesn't go below 0
-        Debug.Log("Boss took " + damage + " damage. Remaining health: " + currentHealth);
+        //Debug.Log("Boss took " + damage + " damage. Remaining health: " + currentHealth);
 
         // Update health slider
         if (healthSlider != null)
@@ -83,7 +83,6 @@ public class Boss : MonoBehaviour
         {
             // Boss is defeated
             Debug.Log("Boss defeated!");
-            // Add code for boss defeat (e.g., play animation, load next level, etc.)
             Destroy(gameObject); // Example action: destroy the boss object
         }
     }

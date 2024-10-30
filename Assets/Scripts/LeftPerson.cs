@@ -1,6 +1,6 @@
 using UnityEngine;
 using System.Collections;
-using UnityEngine.UI; 
+using UnityEngine.UI;
 
 public class LeftPerson : MonoBehaviour
 {
@@ -14,15 +14,19 @@ public class LeftPerson : MonoBehaviour
     [SerializeField] private float stopMovingTime = 1.0f;
     private float nextMoveTime = 0f;
 
-    public int health = 100; 
+    public int health = 100;
     private int maxHealth;
 
-    public Slider healthSlider; 
+    public Slider healthSlider;
 
-    // Duration for which the player turns red when hit
     [SerializeField] private float damageFlashDuration = 0.2f;
 
     private SpriteRenderer spriteRenderer;
+
+    private bool isSwordEffectActive = false; // Track if sword effect is active
+    [SerializeField] private float swordEffectDuration = 1.0f; // Duration of sword effect
+    [SerializeField] private float swordEffectCooldown = 2.0f; // Cooldown time before the effect can be used again
+    private float nextSwordEffectTime = 0f; // Time when the sword effect can be used again
 
     private void Start()
     {
@@ -30,10 +34,8 @@ public class LeftPerson : MonoBehaviour
         transform.position = spots[currentPositionIndex].position;
         spriteRenderer = GetComponent<SpriteRenderer>();
 
-        // Initialize health and maxHealth
         maxHealth = health;
 
-        // Initialize the health slider
         if (healthSlider != null)
         {
             healthSlider.maxValue = maxHealth;
@@ -57,6 +59,13 @@ public class LeftPerson : MonoBehaviour
                 MoveToSpot();
             }
         }
+
+        // Activate sword effect when "W" key is pressed, and cooldown has passed
+        if (Input.GetKeyDown(KeyCode.W) && Time.time >= nextSwordEffectTime && !isSwordEffectActive)
+        {
+            StartCoroutine(ActivateSwordEffect());
+            nextSwordEffectTime = Time.time + swordEffectCooldown; // Set the next available time
+        }
     }
 
     private void MoveToSpot()
@@ -72,26 +81,21 @@ public class LeftPerson : MonoBehaviour
 
     public void TakeDamage(int damage)
     {
-        Debug.Log($"Player health before damage: {health}");
         health -= damage;
-        health = Mathf.Max(health, 0); 
+        health = Mathf.Max(health, 0);
 
-        // Update health slider
         if (healthSlider != null)
         {
             healthSlider.value = health;
         }
 
-        Debug.Log($"Player health after damage: {health}");
+        //Debug.Log($"Player health after damage: {health}");
         if (health <= 0)
         {
-            // GAME OVER
             Debug.Log("Player has been defeated!");
-            // Add code for player defeat (e.g., restart level, show game over screen)
         }
         else
         {
-            // Flash red to indicate damage
             StartCoroutine(FlashRed());
         }
     }
@@ -99,9 +103,23 @@ public class LeftPerson : MonoBehaviour
     private IEnumerator FlashRed()
     {
         spriteRenderer.color = Color.red;
-
         yield return new WaitForSeconds(damageFlashDuration);
-
         spriteRenderer.color = Color.white;
+    }
+
+    private IEnumerator ActivateSwordEffect()
+    {
+        isSwordEffectActive = true;
+        spriteRenderer.color = Color.blue; // Change color to blue for sword effect
+
+        yield return new WaitForSeconds(swordEffectDuration);
+
+        spriteRenderer.color = Color.white; // Revert to original color
+        isSwordEffectActive = false;
+    }
+
+    public bool IsSwordEffectActive()
+    {
+        return isSwordEffectActive;
     }
 }
