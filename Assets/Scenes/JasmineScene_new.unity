@@ -1964,9 +1964,10 @@ GameObject:
   - component: {fileID: 1538549212}
   - component: {fileID: 1538549211}
   - component: {fileID: 1538549213}
+  - component: {fileID: 1538549214}
   m_Layer: 0
   m_Name: RightPerson
-  m_TagString: Player
+  m_TagString: RightPerson
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -2051,26 +2052,50 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   normalSprites:
-  - {fileID: 21300000, guid: 6290259a55b2d334a9fe139a0d30d139, type: 3}
   - {fileID: 21300000, guid: 94dbe66a3aa0e8f45b3003ad8fda3ca3, type: 3}
   - {fileID: 21300000, guid: ec9e890368c5fe44db99f81fe4f78967, type: 3}
-  - {fileID: 21300000, guid: 9b77da7a0b631224b941ddbe371f89df, type: 3}
-  - {fileID: 21300000, guid: 40f188bb2c62b3d42be5691668e0d498, type: 3}
   - {fileID: 21300000, guid: 94ab3b594a324104fb6cb6188945f394, type: 3}
+  - {fileID: 21300000, guid: 6290259a55b2d334a9fe139a0d30d139, type: 3}
+  - {fileID: 21300000, guid: 40f188bb2c62b3d42be5691668e0d498, type: 3}
+  - {fileID: 21300000, guid: 5a8065023dc4d5649b1a00293fadb79d, type: 3}
+  - {fileID: 21300000, guid: 9b77da7a0b631224b941ddbe371f89df, type: 3}
   - {fileID: 21300000, guid: db4c586de4b98584c9107d9386510bc8, type: 3}
   - {fileID: 21300000, guid: 51df6daf2077a274db259a9a2de120ea, type: 3}
-  - {fileID: 21300000, guid: 5a8065023dc4d5649b1a00293fadb79d, type: 3}
   withSpeedLineSprites:
-  - {fileID: 21300000, guid: 49d33d8da1c4a0345850518b66a79780, type: 3}
   - {fileID: 21300000, guid: b13a044e84340554b8b30ca1047cd5f2, type: 3}
   - {fileID: 21300000, guid: db0bfa21bcaec064ca94c15ea2af93a1, type: 3}
-  - {fileID: 21300000, guid: 9b523936eaa82f043aaca5c3421147bf, type: 3}
-  - {fileID: 21300000, guid: dc8539fa51d7e6043b73d66a2509b5a6, type: 3}
   - {fileID: 21300000, guid: f5407a63f5a99724c8cf3efcc38e263c, type: 3}
+  - {fileID: 21300000, guid: 49d33d8da1c4a0345850518b66a79780, type: 3}
+  - {fileID: 21300000, guid: dc8539fa51d7e6043b73d66a2509b5a6, type: 3}
+  - {fileID: 21300000, guid: bf11d98defc814f4c8c5cbfd25c202db, type: 3}
+  - {fileID: 21300000, guid: 9b523936eaa82f043aaca5c3421147bf, type: 3}
   - {fileID: 21300000, guid: 4cd7abb03dea3114f85789d1c8e4f2f0, type: 3}
   - {fileID: 21300000, guid: b6c418cb7e4897f48834eea93b007e3c, type: 3}
-  - {fileID: 21300000, guid: bf11d98defc814f4c8c5cbfd25c202db, type: 3}
   delayTime: 0.3
+  health: 100
+  healthSlider: {fileID: 0}
+  damageFlashDuration: 0.2
+--- !u!65 &1538549214
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1538549210}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 9.46, y: 9.1, z: 0.2}
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &1827584306
 GameObject:
   m_ObjectHideFlags: 0

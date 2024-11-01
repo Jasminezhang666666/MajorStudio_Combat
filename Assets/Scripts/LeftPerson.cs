@@ -28,6 +28,9 @@ public class LeftPerson : MonoBehaviour
     [SerializeField] private float swordEffectCooldown = 2.0f; // Cooldown time before the effect can be used again
     private float nextSwordEffectTime = 0f; // Time when the sword effect can be used again
 
+    private enum ActionStage { Attack, Deflect }
+    private ActionStage currentStage = ActionStage.Attack; // Initial stage
+
     private void Start()
     {
         spots = new Transform[3] { leftSpot, centerSpot, rightSpot };
@@ -61,10 +64,16 @@ public class LeftPerson : MonoBehaviour
         }
 
         // Activate sword effect when "W" key is pressed, and cooldown has passed
-        if (Input.GetKeyDown(KeyCode.W) && Time.time >= nextSwordEffectTime && !isSwordEffectActive)
+        if (Input.GetKeyDown(KeyCode.W) && Time.time >= nextSwordEffectTime && !isSwordEffectActive && currentStage == ActionStage.Deflect)
         {
             StartCoroutine(ActivateSwordEffect());
             nextSwordEffectTime = Time.time + swordEffectCooldown; // Set the next available time
+        }
+
+        // Change stage when Space key is pressed
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            ToggleStage();
         }
     }
 
@@ -74,6 +83,20 @@ public class LeftPerson : MonoBehaviour
         nextMoveTime = Time.time + stopMovingTime;
     }
 
+    private void ToggleStage()
+    {
+        if (currentStage == ActionStage.Attack)
+        {
+            currentStage = ActionStage.Deflect;
+            Debug.Log("Stage changed to Deflect.");
+        }
+        else
+        {
+            currentStage = ActionStage.Attack;
+            Debug.Log("Stage changed to Attack.");
+        }
+    }
+
     public int GetCurrentPositionIndex()
     {
         return currentPositionIndex;
@@ -81,22 +104,29 @@ public class LeftPerson : MonoBehaviour
 
     public void TakeDamage(int damage)
     {
-        health -= damage;
-        health = Mathf.Max(health, 0);
-
-        if (healthSlider != null)
+        // Only take damage if not in Deflect mode or if sword effect is inactive
+        if (currentStage != ActionStage.Deflect || !isSwordEffectActive)
         {
-            healthSlider.value = health;
-        }
+            health -= damage;
+            health = Mathf.Max(health, 0);
 
-        //Debug.Log($"Player health after damage: {health}");
-        if (health <= 0)
-        {
-            Debug.Log("Player has been defeated!");
+            if (healthSlider != null)
+            {
+                healthSlider.value = health;
+            }
+
+            if (health <= 0)
+            {
+                Debug.Log("Player has been defeated!");
+            }
+            else
+            {
+                StartCoroutine(FlashRed());
+            }
         }
         else
         {
-            StartCoroutine(FlashRed());
+            Debug.Log("Attack deflected!");
         }
     }
 
