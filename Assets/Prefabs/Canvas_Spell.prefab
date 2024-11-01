@@ -781,7 +781,7 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3265676521001232231}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: 0, y: 0, z: -0.38268343, w: 0.92387956}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -796,10 +796,10 @@ RectTransform:
   - {fileID: 4288620101584330046}
   - {fileID: 5798577925862132427}
   m_Father: {fileID: 1224308252279662438}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: -45}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 500, y: 0}
+  m_AnchoredPosition: {x: 571, y: -18}
   m_SizeDelta: {x: 400, y: 200}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1022824489331385418
@@ -841,6 +841,7 @@ MonoBehaviour:
   linePrefab: {fileID: 6120542285513195622, guid: 20cb87b7bb5710643a949c9efc0ea8c6, type: 3}
   canvas: {fileID: 4034777686806229799}
   howLongToDisappear: 1.5
+  rightPerson: {fileID: 0}
 --- !u!1 &4321151421853647362
 GameObject:
   m_ObjectHideFlags: 0
