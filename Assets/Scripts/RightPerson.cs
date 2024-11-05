@@ -1,6 +1,5 @@
 using UnityEngine;
 using System.Collections;
-using UnityEngine.UI;
 
 public class RightPerson : MonoBehaviour
 {
@@ -11,11 +10,7 @@ public class RightPerson : MonoBehaviour
     private SpriteRenderer spriteRenderer;
     private Coroutine spriteSwitchCoroutine;
 
-    // Added variables for health management
-    public int health = 100;
-    private int maxHealth;
-
-    public Slider healthSlider; // Optional, if you want to display health
+    private LeftPerson leftPerson;
 
     [SerializeField] private float damageFlashDuration = 0.2f; // Duration of red flash
 
@@ -23,19 +18,17 @@ public class RightPerson : MonoBehaviour
     {
         spriteRenderer = GetComponent<SpriteRenderer>();
 
-        // Initialize health
-        maxHealth = health;
-
-        if (healthSlider != null)
+        // Find the LeftPerson in the scene
+        leftPerson = GameObject.FindObjectOfType<LeftPerson>();
+        if (leftPerson == null)
         {
-            healthSlider.maxValue = maxHealth;
-            healthSlider.value = health;
+            Debug.LogError("LeftPerson not found in the scene.");
         }
     }
 
     public void UpdateSpriteWithDelay(int circleId)
     {
-        // Stop any ongoing coroutine to prevent interference
+        // Stop any ongoing coroutine
         if (spriteSwitchCoroutine != null)
         {
             StopCoroutine(spriteSwitchCoroutine);
@@ -62,33 +55,19 @@ public class RightPerson : MonoBehaviour
         }
     }
 
-    // New method to handle taking damage
     public void TakeDamage(int damage)
     {
-        health -= damage;
-        health = Mathf.Max(health, 0);
-
-        // Update health slider if it exists
-        if (healthSlider != null)
+        if (leftPerson != null)
         {
-            healthSlider.value = health;
-        }
-
-        if (health <= 0)
-        {
-            Debug.Log("RightPerson has been defeated!");
-            // Implement any defeat logic here (e.g., disable the object, play animation)
-        }
-        else
-        {
+            leftPerson.TakeDamage(damage); // Apply damage to LeftPerson
             StartCoroutine(FlashRed());
         }
     }
 
     private IEnumerator FlashRed()
     {
-        spriteRenderer.color = Color.red; // Change color to red
+        spriteRenderer.color = Color.red; 
         yield return new WaitForSeconds(damageFlashDuration);
-        spriteRenderer.color = Color.white; // Revert to original color
+        spriteRenderer.color = Color.white; 
     }
 }

@@ -20,16 +20,18 @@ public class LeftPerson : MonoBehaviour
     public Slider healthSlider;
 
     [SerializeField] private float damageFlashDuration = 0.2f;
-
     private SpriteRenderer spriteRenderer;
 
-    private bool isSwordEffectActive = false; // Track if sword effect is active
-    [SerializeField] private float swordEffectDuration = 1.0f; // Duration of sword effect
-    [SerializeField] private float swordEffectCooldown = 2.0f; // Cooldown time before the effect can be used again
-    private float nextSwordEffectTime = 0f; // Time when the sword effect can be used again
+    private bool isSwordEffectActive = false;
+    [SerializeField] private float swordEffectDuration = 1.0f;
+    [SerializeField] private float swordEffectCooldown = 2.0f;
+    private float nextSwordEffectTime = 0f;
 
     private enum ActionStage { Attack, Deflect }
-    private ActionStage currentStage = ActionStage.Attack; // Initial stage
+    private ActionStage currentStage = ActionStage.Attack;
+
+    [SerializeField] private int bossDamageAmount = 2; // Amount to reduce boss health
+    private Boss boss; // Reference to the boss
 
     private void Start()
     {
@@ -43,6 +45,13 @@ public class LeftPerson : MonoBehaviour
         {
             healthSlider.maxValue = maxHealth;
             healthSlider.value = health;
+        }
+
+        // Find the boss in the scene
+        boss = GameObject.FindObjectOfType<Boss>();
+        if (boss == null)
+        {
+            Debug.LogError("Boss not found in the scene.");
         }
     }
 
@@ -63,14 +72,19 @@ public class LeftPerson : MonoBehaviour
             }
         }
 
-        // Activate sword effect when "W" key is pressed, and cooldown has passed
-        if (Input.GetKeyDown(KeyCode.W) && Time.time >= nextSwordEffectTime && !isSwordEffectActive && currentStage == ActionStage.Deflect)
+        if (Input.GetKeyDown(KeyCode.W))
         {
-            StartCoroutine(ActivateSwordEffect());
-            nextSwordEffectTime = Time.time + swordEffectCooldown; // Set the next available time
+            if (currentStage == ActionStage.Deflect && Time.time >= nextSwordEffectTime && !isSwordEffectActive)
+            {
+                StartCoroutine(ActivateSwordEffect());
+                nextSwordEffectTime = Time.time + swordEffectCooldown;
+            }
+            else if (currentStage == ActionStage.Attack)
+            {
+                AttackBoss();
+            }
         }
 
-        // Change stage when Space key is pressed
         if (Input.GetKeyDown(KeyCode.Space))
         {
             ToggleStage();
@@ -97,6 +111,15 @@ public class LeftPerson : MonoBehaviour
         }
     }
 
+    private void AttackBoss()
+    {
+        if (boss != null)
+        {
+            boss.TakeDamage(bossDamageAmount);
+            Debug.Log("Boss took damage: " + bossDamageAmount);
+        }
+    }
+
     public int GetCurrentPositionIndex()
     {
         return currentPositionIndex;
@@ -104,7 +127,6 @@ public class LeftPerson : MonoBehaviour
 
     public void TakeDamage(int damage)
     {
-        // Only take damage if not in Deflect mode or if sword effect is inactive
         if (currentStage != ActionStage.Deflect || !isSwordEffectActive)
         {
             health -= damage;
@@ -124,10 +146,6 @@ public class LeftPerson : MonoBehaviour
                 StartCoroutine(FlashRed());
             }
         }
-        else
-        {
-            Debug.Log("Attack deflected!");
-        }
     }
 
     private IEnumerator FlashRed()
@@ -140,11 +158,11 @@ public class LeftPerson : MonoBehaviour
     private IEnumerator ActivateSwordEffect()
     {
         isSwordEffectActive = true;
-        spriteRenderer.color = Color.blue; // Change color to blue for sword effect
+        spriteRenderer.color = Color.blue;
 
         yield return new WaitForSeconds(swordEffectDuration);
 
-        spriteRenderer.color = Color.white; // Revert to original color
+        spriteRenderer.color = Color.white;
         isSwordEffectActive = false;
     }
 

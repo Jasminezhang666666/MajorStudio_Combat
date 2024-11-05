@@ -4,6 +4,9 @@ using System.Linq;
 public class BossAttack : MonoBehaviour
 {
     [SerializeField] private float speed = 5f;
+    [SerializeField] private int rightPersonHitDamage = 8;
+    [SerializeField] private int leftPersonHitDamage = 3;
+    [SerializeField] private int BossHitDamage = 10;
 
     private Vector3 direction;
     private Vector3 targetPosition;
@@ -38,21 +41,17 @@ public class BossAttack : MonoBehaviour
 
     public void SetTarget(Vector3 target)
     {
-        // Store the target position
         targetPosition = target;
 
         // Set initial direction towards the target
         direction = (targetPosition - transform.position).normalized;
-
-        // Debug to verify direction includes Z-axis
-        Debug.Log("Initial Direction: " + direction);
     }
 
     private void LateUpdate()
     {
         if (!targetReached)
         {
-            // Move towards the target position
+            // Move towards the target pos
             transform.position += direction * speed * Time.deltaTime;
 
             // Check if the projectile has reached the target
@@ -60,41 +59,21 @@ public class BossAttack : MonoBehaviour
             {
                 targetReached = true;
 
-                // Snap to exact target position
                 transform.position = targetPosition;
 
                 // Set new direction towards RightPerson
                 direction = (rightPersonPosition - transform.position).normalized;
                 movingTowardsRightPerson = true;
-
-                Debug.Log("Target reached. Now moving towards RightPerson.");
             }
         }
         else if (movingTowardsRightPerson)
         {
-            // Update rightPersonPosition in case RightPerson moves
-            rightPersonPosition = rightPersonObj.transform.position;
-
             // Update direction towards RightPerson
             direction = (rightPersonPosition - transform.position).normalized;
 
-            // Continue moving towards RightPerson
+            // moving towards RightPerson
             transform.position += direction * speed * Time.deltaTime;
 
-            // Optionally, check if it has reached RightPerson
-            if (Vector3.Distance(transform.position, rightPersonPosition) <= 0.1f)
-            {
-                // Trigger effects on RightPerson here
-                // For example, you can call a method on RightPerson
-                RightPerson rightPerson = rightPersonObj.GetComponent<RightPerson>();
-                if (rightPerson != null)
-                {
-                    // Implement any effects on RightPerson
-                }
-
-                // Destroy the projectile
-                Destroy(gameObject);
-            }
         }
 
         // Destroy if out of camera view
@@ -133,8 +112,8 @@ public class BossAttack : MonoBehaviour
                 }
                 else
                 {
-                    // Apply damage to the player and destroy the projectile
-                    leftPerson.TakeDamage(10); // Adjust damage value as needed
+                    // Apply damage to the LeftPerson
+                    leftPerson.TakeDamage(leftPersonHitDamage); 
                     Destroy(gameObject);
                 }
             }
@@ -146,7 +125,7 @@ public class BossAttack : MonoBehaviour
                 Boss boss = collision.gameObject.GetComponent<Boss>();
                 if (boss != null)
                 {
-                    boss.TakeDamage(1); // Decrease boss health
+                    boss.TakeDamage(BossHitDamage); // Decrease boss health
                 }
                 Destroy(gameObject);
             }
@@ -157,7 +136,7 @@ public class BossAttack : MonoBehaviour
             RightPerson rightPerson = collision.gameObject.GetComponent<RightPerson>();
             if (rightPerson != null)
             {
-                // Implement any effects on RightPerson here
+                rightPerson.TakeDamage(rightPersonHitDamage);
             }
             Destroy(gameObject);
         }
@@ -169,7 +148,6 @@ public class BossAttack : MonoBehaviour
         {
             isDeflected = true;
             direction = -direction;
-            Debug.Log("Deflected Direction: " + direction);
         }
     }
 }
