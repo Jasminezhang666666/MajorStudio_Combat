@@ -4,11 +4,19 @@ using System.Linq;
 public class BossAttack : MonoBehaviour
 {
     [SerializeField] private float speed = 5f;
+    [SerializeField] private int rightPersonHitDamage = 8;
+    [SerializeField] private int leftPersonHitDamage = 3;
+    [SerializeField] private int BossHitDamage = 10;
 
     private Vector3 direction;
+    private Vector3 targetPosition;
+    private Vector3 rightPersonPosition;
     private Camera[] cameras;
     private bool isDeflected = false;
+    private bool targetReached = false;
+    private bool movingTowardsRightPerson = false;
     private Rigidbody rb;
+    private GameObject rightPersonObj;
 
     private void Start()
     {
@@ -18,24 +26,55 @@ public class BossAttack : MonoBehaviour
         rb.useGravity = false;
         rb.collisionDetectionMode = CollisionDetectionMode.Continuous;
         rb.constraints = RigidbodyConstraints.FreezeRotation;
+
+        // Find the RightPerson in the scene
+        rightPersonObj = GameObject.FindWithTag("RightPerson");
+        if (rightPersonObj != null)
+        {
+            rightPersonPosition = rightPersonObj.transform.position;
+        }
+        else
+        {
+            Debug.LogError("RightPerson not found in the scene. Please make sure RightPerson has the correct tag.");
+        }
     }
 
     public void SetTarget(Vector3 target)
     {
-        // Set direction based on target, ensuring Z-axis is included
-        direction = (target - transform.position).normalized;
+        targetPosition = target;
 
-        // Debug to verify direction includes Z-axis
-        Debug.Log("Initial Direction: " + direction);
+        // Set initial direction towards the target
+        direction = (targetPosition - transform.position).normalized;
     }
 
     private void LateUpdate()
     {
-        // Move the projectile along the set direction vector
-        transform.position += direction * speed * Time.deltaTime;
+        if (!targetReached)
+        {
+            // Move towards the target pos
+            transform.position += direction * speed * Time.deltaTime;
 
-        // Debug to verify Z-axis movement
-        //Debug.Log("Current Position: " + transform.position + ", Direction: " + direction);
+            // Check if the projectile has reached the target
+            if (Vector3.Distance(transform.position, targetPosition) <= 0.1f)
+            {
+                targetReached = true;
+
+                transform.position = targetPosition;
+
+                // Set new direction towards RightPerson
+                direction = (rightPersonPosition - transform.position).normalized;
+                movingTowardsRightPerson = true;
+            }
+        }
+        else if (movingTowardsRightPerson)
+        {
+            // Update direction towards RightPerson
+            direction = (rightPersonPosition - transform.position).normalized;
+
+            // moving towards RightPerson
+            transform.position += direction * speed * Time.deltaTime;
+
+        }
 
         // Destroy if out of camera view
         if (!IsVisibleFromAnyCamera())
@@ -73,8 +112,8 @@ public class BossAttack : MonoBehaviour
                 }
                 else
                 {
-                    // Apply damage to the player and destroy the projectile
-                    leftPerson.TakeDamage(10); // Adjust damage value as needed
+                    // Apply damage to the LeftPerson
+                    leftPerson.TakeDamage(leftPersonHitDamage); 
                     Destroy(gameObject);
                 }
             }
@@ -86,10 +125,20 @@ public class BossAttack : MonoBehaviour
                 Boss boss = collision.gameObject.GetComponent<Boss>();
                 if (boss != null)
                 {
-                    boss.TakeDamage(1); // Decrease boss health
+                    boss.TakeDamage(BossHitDamage); // Decrease boss health
                 }
                 Destroy(gameObject);
             }
+        }
+        else if (collision.gameObject.CompareTag("RightPerson"))
+        {
+            // Handle collision with RightPerson
+            RightPerson rightPerson = collision.gameObject.GetComponent<RightPerson>();
+            if (rightPerson != null)
+            {
+                rightPerson.TakeDamage(rightPersonHitDamage);
+            }
+            Destroy(gameObject);
         }
     }
 
@@ -99,7 +148,6 @@ public class BossAttack : MonoBehaviour
         {
             isDeflected = true;
             direction = -direction;
-            Debug.Log("Deflected Direction: " + direction);
         }
     }
 }
