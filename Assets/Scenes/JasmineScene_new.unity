@@ -161,7 +161,7 @@ MonoBehaviour:
   leftSpot: {fileID: 104579188}
   centerSpot: {fileID: 1172778078}
   rightSpot: {fileID: 1090541106}
-  maxHealth: 100
+  maxHealth: 200
   currentHealth: 0
   leftPerson: {fileID: 184939902}
   healthSlider: {fileID: 114180484}
@@ -461,8 +461,8 @@ MonoBehaviour:
   healthSlider: {fileID: 1124501189}
   damageFlashDuration: 0.2
   swordEffectDuration: 0.7
-  swordEffectCooldown: 2
-  bossDamageAmount: 2
+  swordEffectCooldown: 1
+  bossDamageAmount: 1
 --- !u!54 &184939903
 Rigidbody:
   m_ObjectHideFlags: 0
