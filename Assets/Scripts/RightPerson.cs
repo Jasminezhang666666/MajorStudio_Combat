@@ -5,20 +5,18 @@ public class RightPerson : MonoBehaviour
 {
     public Sprite[] normalSprites;
     public Sprite[] withSpeedLineSprites;
-    [SerializeField] private float delayTime = 0.5f;  // Delay time before switching to normal sprite
-
+    [SerializeField] private float delayTime = 0.5f;
     private SpriteRenderer spriteRenderer;
     private Coroutine spriteSwitchCoroutine;
-
     private LeftPerson leftPerson;
-
-    [SerializeField] private float damageFlashDuration = 0.2f; // Duration of red flash
+    [SerializeField] private float damageFlashDuration = 0.2f;
+    private bool isInvincible = false;
+    public GameObject shieldPrefab;
+    private GameObject activeShield;
 
     private void Awake()
     {
         spriteRenderer = GetComponent<SpriteRenderer>();
-
-        // Find the LeftPerson in the scene
         leftPerson = GameObject.FindObjectOfType<LeftPerson>();
         if (leftPerson == null)
         {
@@ -28,27 +26,20 @@ public class RightPerson : MonoBehaviour
 
     public void UpdateSpriteWithDelay(int circleId)
     {
-        // Stop any ongoing coroutine
         if (spriteSwitchCoroutine != null)
         {
             StopCoroutine(spriteSwitchCoroutine);
         }
-
-        // Switch sprites with delay
         spriteSwitchCoroutine = StartCoroutine(SwitchToNormalSprite(circleId));
     }
 
     private IEnumerator SwitchToNormalSprite(int circleId)
     {
-        // Display the withSpeedLine sprite first
         if (circleId >= 0 && circleId < withSpeedLineSprites.Length)
         {
             spriteRenderer.sprite = withSpeedLineSprites[circleId];
         }
-
         yield return new WaitForSeconds(delayTime);
-
-        // Display the normal sprite
         if (circleId >= 0 && circleId < normalSprites.Length)
         {
             spriteRenderer.sprite = normalSprites[circleId];
@@ -57,17 +48,35 @@ public class RightPerson : MonoBehaviour
 
     public void TakeDamage(int damage)
     {
+        if (isInvincible)
+            return;
         if (leftPerson != null)
         {
-            leftPerson.TakeDamage(damage); // Apply damage to LeftPerson
+            leftPerson.TakeDamage(damage);
             StartCoroutine(FlashRed());
         }
     }
 
+    public IEnumerator ActivateShield(float duration)
+    {
+        isInvincible = true;
+        if (shieldPrefab != null)
+        {
+            activeShield = Instantiate(shieldPrefab, transform);
+            activeShield.transform.localPosition = Vector3.zero;
+        }
+        yield return new WaitForSeconds(duration);
+        if (activeShield != null)
+        {
+            Destroy(activeShield);
+        }
+        isInvincible = false;
+    }
+
     private IEnumerator FlashRed()
     {
-        spriteRenderer.color = Color.red; 
+        spriteRenderer.color = Color.red;
         yield return new WaitForSeconds(damageFlashDuration);
-        spriteRenderer.color = Color.white; 
+        spriteRenderer.color = Color.white;
     }
 }

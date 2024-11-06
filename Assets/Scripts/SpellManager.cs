@@ -10,6 +10,7 @@ public class SpellManager : MonoBehaviour
     public int maxSpellsInUI = 4;         
 
     public LeftPerson leftPerson;         
+    public RightPerson rightPerson; 
     public Boss boss;                      
     public int manaCostPerSpell = 5;       
 
@@ -28,7 +29,6 @@ public class SpellManager : MonoBehaviour
 
     private void AddRandomSpellToUI()
     {
-        //Debug.Log("Attempting to add a random spell to the UI.");
         // Choose a random spell not already displayed
         List<Spell> availableSpells = new List<Spell>(allSpells);
         availableSpells.RemoveAll(s => currentSpells.Contains(s));
@@ -124,16 +124,36 @@ public class SpellManager : MonoBehaviour
 
     private void ApplySpellEffect(Spell spell)
     {
-        // Apply the spell's effect on the boss
-        if (boss != null)
+        switch (spell.spellType)
         {
-            boss.TakeDamage(spell.damage);
+            case SpellType.Attack:
+                if (boss != null)
+                {
+                    boss.TakeDamage(spell.damage);
+                }
+                break;
+            case SpellType.Recover:
+                if (leftPerson != null)
+                {
+                    leftPerson.RecoverHealth(10);
+                }
+                break;
+            case SpellType.Shield:
+                if (leftPerson != null)
+                {
+                    leftPerson.StartCoroutine(leftPerson.ActivateShield(2f));
+                }
+                if (rightPerson != null)
+                {
+                    rightPerson.StartCoroutine(rightPerson.ActivateShield(2f));
+                }
+                break;
         }
     }
 
     public void OnSpellFailed()
     {
         Debug.Log("Spell attempt failed.");
-        // You can add additional feedback here, such as playing a sound or showing a message
+
     }
 }
