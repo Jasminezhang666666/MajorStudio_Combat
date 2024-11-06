@@ -28,6 +28,9 @@ public class LeftPerson : MonoBehaviour
     public GameObject shieldPrefab;
     private GameObject activeShield;
 
+    [SerializeField] private GameObject attackUI; // UI element for Attack stage
+    [SerializeField] private GameObject deflectUI; // UI element for Deflect stage
+
     private void Start()
     {
         spots = new Transform[3] { leftSpot, centerSpot, rightSpot };
@@ -44,6 +47,8 @@ public class LeftPerson : MonoBehaviour
         {
             Debug.LogError("Boss not found in the scene.");
         }
+
+        UpdateUI(); // Initial UI update
     }
 
     private void Update()
@@ -97,6 +102,15 @@ public class LeftPerson : MonoBehaviour
             currentStage = ActionStage.Attack;
             Debug.Log("Stage changed to Attack.");
         }
+
+        UpdateUI(); // Update UI after toggling the stage
+    }
+
+    private void UpdateUI()
+    {
+        // Enable or disable UI elements based on the current stage
+        attackUI.SetActive(currentStage == ActionStage.Attack);
+        deflectUI.SetActive(currentStage == ActionStage.Deflect);
     }
 
     private void AttackBoss()
