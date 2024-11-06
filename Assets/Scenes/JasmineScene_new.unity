@@ -157,7 +157,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   projectilePrefab: {fileID: 4518046376536715760, guid: a9397cabc3f0d7a4cb9dcd5704bfe57a, type: 3}
+  bossRainPrefab: {fileID: 5359094070342057939, guid: 22af43cf3ef21cc4ea6ae054f6a0708e, type: 3}
   timeBetweenShots: 2
+  projectileChance: 0.33
   leftSpot: {fileID: 104579188}
   centerSpot: {fileID: 1172778078}
   rightSpot: {fileID: 1090541106}
