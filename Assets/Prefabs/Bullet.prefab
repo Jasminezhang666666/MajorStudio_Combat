@@ -99,7 +99,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f0d8469c0aa2d894ea4c903b341406b5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  speed: 4
+  speed: 3
   rightPersonHitDamage: 8
   leftPersonHitDamage: 3
   BossHitDamage: 10
