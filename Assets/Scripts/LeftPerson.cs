@@ -9,20 +9,29 @@ public class LeftPerson : MonoBehaviour
     public Transform rightSpot;
     private int currentPositionIndex = 1;
     private Transform[] spots;
+
     [SerializeField] private float stopMovingTime = 1.0f;
     private float nextMoveTime = 0f;
     public int health = 100;
     private int maxHealth;
     public Slider healthSlider;
     [SerializeField] private float damageFlashDuration = 0.2f;
+
     private SpriteRenderer spriteRenderer;
+
+    [SerializeField] private Sprite leftSprite;
+    [SerializeField] private Sprite centerSprite;
+    [SerializeField] private Sprite rightSprite;
+
     private bool isSwordEffectActive = false;
     [SerializeField] private float swordEffectDuration = 1.0f;
     [SerializeField] private float swordEffectCooldown = 2.0f;
     private float nextSwordEffectTime = 0f;
+
     private enum ActionStage { Attack, Deflect }
     private ActionStage currentStage = ActionStage.Attack;
     [SerializeField] private int bossDamageAmount = 2;
+
     private Boss boss;
     private bool isInvincible = false;
     public GameObject shieldPrefab;
@@ -37,11 +46,13 @@ public class LeftPerson : MonoBehaviour
         transform.position = spots[currentPositionIndex].position;
         spriteRenderer = GetComponent<SpriteRenderer>();
         maxHealth = health;
+
         if (healthSlider != null)
         {
             healthSlider.maxValue = maxHealth;
             healthSlider.value = health;
         }
+
         boss = GameObject.FindObjectOfType<Boss>();
         if (boss == null)
         {
@@ -49,6 +60,7 @@ public class LeftPerson : MonoBehaviour
         }
 
         UpdateUI(); // Initial UI update
+        UpdateSprite(); // Initial sprite update based on starting position
     }
 
     private void Update()
@@ -66,6 +78,7 @@ public class LeftPerson : MonoBehaviour
                 MoveToSpot();
             }
         }
+
         if (Input.GetKeyDown(KeyCode.W))
         {
             if (currentStage == ActionStage.Deflect && Time.time >= nextSwordEffectTime && !isSwordEffectActive)
@@ -78,6 +91,7 @@ public class LeftPerson : MonoBehaviour
                 AttackBoss();
             }
         }
+
         if (Input.GetKeyDown(KeyCode.Space))
         {
             ToggleStage();
@@ -88,6 +102,7 @@ public class LeftPerson : MonoBehaviour
     {
         transform.position = spots[currentPositionIndex].position;
         nextMoveTime = Time.time + stopMovingTime;
+        UpdateSprite(); // Update sprite based on new position
     }
 
     private void ToggleStage()
@@ -108,9 +123,24 @@ public class LeftPerson : MonoBehaviour
 
     private void UpdateUI()
     {
-        // Enable or disable UI elements based on the current stage
         attackUI.SetActive(currentStage == ActionStage.Attack);
         deflectUI.SetActive(currentStage == ActionStage.Deflect);
+    }
+
+    private void UpdateSprite()
+    {
+        switch (currentPositionIndex)
+        {
+            case 0:
+                spriteRenderer.sprite = leftSprite;
+                break;
+            case 1:
+                spriteRenderer.sprite = centerSprite;
+                break;
+            case 2:
+                spriteRenderer.sprite = rightSprite;
+                break;
+        }
     }
 
     private void AttackBoss()
