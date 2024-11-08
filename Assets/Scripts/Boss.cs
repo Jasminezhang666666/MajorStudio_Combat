@@ -1,15 +1,21 @@
 using UnityEngine;
 using UnityEngine.UI;
+using System.Collections;
 
 public class Boss : MonoBehaviour
 {
     [SerializeField] private GameObject projectilePrefab;
     [SerializeField] private GameObject bossRainPrefab;
 
+    private SpriteRenderer spriteRenderer;
+    [SerializeField] private float damageFlashDuration = 0.2f;
+
+    private Color originalColor; // Store the original color here
+
     [SerializeField] private float timeBetweenShots = 2.0f;
     private float nextFireTime = 0f;
 
-    [SerializeField] private float projectileChance = 0.33f; 
+    [SerializeField] private float projectileChance = 0.33f;
     //[SerializeField] private float bossRainChance = 0.67f; 
 
     public Transform leftSpot;
@@ -25,6 +31,9 @@ public class Boss : MonoBehaviour
     private void Start()
     {
         currentHealth = maxHealth;
+
+        spriteRenderer = GetComponent<SpriteRenderer>();
+        originalColor = spriteRenderer.color; // Get and store the original color at the start
 
         // Initialize the health slider
         if (healthSlider != null)
@@ -82,6 +91,8 @@ public class Boss : MonoBehaviour
 
     public void TakeDamage(int damage)
     {
+        StartCoroutine(FlashPurple());
+
         currentHealth -= damage;
         currentHealth = Mathf.Max(currentHealth, 0); // Ensure health doesn't go below 0
 
@@ -97,5 +108,12 @@ public class Boss : MonoBehaviour
             Debug.Log("Boss defeated!");
             Destroy(gameObject); // Example action: destroy the boss object
         }
+    }
+
+    private IEnumerator FlashPurple()
+    {
+        spriteRenderer.color = new Color(0.494f, 0.337f, 0.604f); // Equivalent to hex #7E569A
+        yield return new WaitForSeconds(damageFlashDuration);
+        spriteRenderer.color = originalColor; // Return to the original color after flashing
     }
 }
