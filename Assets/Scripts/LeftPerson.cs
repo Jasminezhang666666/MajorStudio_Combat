@@ -22,8 +22,16 @@ public class LeftPerson : MonoBehaviour
     [SerializeField] private Sprite leftSprite;
     [SerializeField] private Sprite centerSprite;
     [SerializeField] private Sprite rightSprite;
+    [SerializeField] private Sprite leftAttackSprite;
+    [SerializeField] private Sprite centerAttackSprite;
+    [SerializeField] private Sprite rightAttackSprite;
+    [SerializeField] private Sprite leftAttackStopSprite;
+    [SerializeField] private Sprite centerAttackStopSprite;
+    [SerializeField] private Sprite rightAttackStopSprite;
+    [SerializeField] private float attackSpriteDuration = 0.5f; // Adjustable attack sprite display duration
 
     private bool isSwordEffectActive = false;
+    private bool isAttacking = false;
     [SerializeField] private float swordEffectDuration = 1.0f;
     [SerializeField] private float swordEffectCooldown = 2.0f;
     private float nextSwordEffectTime = 0f;
@@ -37,8 +45,8 @@ public class LeftPerson : MonoBehaviour
     public GameObject shieldPrefab;
     private GameObject activeShield;
 
-    [SerializeField] private GameObject attackUI; // UI element for Attack stage
-    [SerializeField] private GameObject deflectUI; // UI element for Deflect stage
+    [SerializeField] private GameObject attackUI;
+    [SerializeField] private GameObject deflectUI; 
 
     private void Start()
     {
@@ -88,6 +96,8 @@ public class LeftPerson : MonoBehaviour
             }
             else if (currentStage == ActionStage.Attack)
             {
+                StopCoroutine("DisplayAttackSpriteSequence"); // Stop any ongoing sprite sequence
+                StartCoroutine(DisplayAttackSpriteSequence());
                 AttackBoss();
             }
         }
@@ -102,7 +112,7 @@ public class LeftPerson : MonoBehaviour
     {
         transform.position = spots[currentPositionIndex].position;
         nextMoveTime = Time.time + stopMovingTime;
-        UpdateSprite(); // Update sprite based on new position
+        UpdateSprite(); 
     }
 
     private void ToggleStage()
@@ -150,6 +160,48 @@ public class LeftPerson : MonoBehaviour
             boss.TakeDamage(bossDamageAmount);
             Debug.Log("Boss took damage: " + bossDamageAmount);
         }
+    }
+
+    private IEnumerator DisplayAttackSpriteSequence()
+    {
+        isAttacking = true;
+        Sprite originalSprite = spriteRenderer.sprite;
+
+        switch (currentPositionIndex)
+        {
+            case 0:
+                spriteRenderer.sprite = leftAttackSprite;
+                break;
+            case 1:
+                spriteRenderer.sprite = centerAttackSprite;
+                break;
+            case 2:
+                spriteRenderer.sprite = rightAttackSprite;
+                break;
+        }
+
+        yield return new WaitForSeconds(attackSpriteDuration);
+
+        if (!Input.GetKey(KeyCode.W))
+        {
+            switch (currentPositionIndex)
+            {
+                case 0:
+                    spriteRenderer.sprite = leftAttackStopSprite;
+                    break;
+                case 1:
+                    spriteRenderer.sprite = centerAttackStopSprite;
+                    break;
+                case 2:
+                    spriteRenderer.sprite = rightAttackStopSprite;
+                    break;
+            }
+
+            yield return new WaitForSeconds(attackSpriteDuration);
+        }
+
+        spriteRenderer.sprite = originalSprite;
+        isAttacking = false;
     }
 
     public int GetCurrentPositionIndex()
