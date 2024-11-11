@@ -150,4 +150,6 @@ public class BossAttack : MonoBehaviour
             direction = -direction;
         }
     }
+
+
 }
