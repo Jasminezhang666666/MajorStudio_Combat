@@ -9,14 +9,10 @@ public class Boss : MonoBehaviour
 
     private SpriteRenderer spriteRenderer;
     [SerializeField] private float damageFlashDuration = 0.2f;
-
-    private Color originalColor; // Store the original color here
-
+    private Color originalColor;
     [SerializeField] private float timeBetweenShots = 2.0f;
     private float nextFireTime = 0f;
-
     [SerializeField] private float projectileChance = 0.33f;
-    //[SerializeField] private float bossRainChance = 0.67f; 
 
     public Transform leftSpot;
     public Transform centerSpot;
@@ -24,18 +20,22 @@ public class Boss : MonoBehaviour
 
     public int maxHealth = 100;
     public int currentHealth;
+    public Slider healthSlider;
 
     [SerializeField] private LeftPerson leftPerson;
-    public Slider healthSlider;
+
+    private Animator animator;
+
+    [SerializeField] private float attackAnimationDelay = 0.7f; // Delay before firing projectile after animation starts
 
     private void Start()
     {
         currentHealth = maxHealth;
-
         spriteRenderer = GetComponent<SpriteRenderer>();
-        originalColor = spriteRenderer.color; // Get and store the original color at the start
+        originalColor = spriteRenderer.color;
 
-        // Initialize the health slider
+        animator = GetComponent<Animator>();
+
         if (healthSlider != null)
         {
             healthSlider.maxValue = maxHealth;
@@ -45,7 +45,6 @@ public class Boss : MonoBehaviour
 
     private void Update()
     {
-        // to fire again?
         if (Time.time >= nextFireTime)
         {
             ShootAtPlayer();
@@ -53,40 +52,31 @@ public class Boss : MonoBehaviour
         }
     }
 
-    // Determine the player's position and attack type
     private void ShootAtPlayer()
     {
-        // Get the LeftPerson's current position index and its target position
         int playerPositionIndex = leftPerson.GetCurrentPositionIndex();
 
-        Vector3 targetPosition;
-        if (playerPositionIndex == 0)
-        {
-            targetPosition = leftSpot.position;
-        }
-        else if (playerPositionIndex == 2)
-        {
-            targetPosition = rightSpot.position;
-        }
-        else
-        {
-            targetPosition = centerSpot.position;
-        }
+        Vector3 targetPosition = playerPositionIndex == 0 ? leftSpot.position :
+                                 playerPositionIndex == 2 ? rightSpot.position : centerSpot.position;
 
-        // Adjust the probability of which attack to generate
         float randomValue = Random.value;
         if (randomValue <= projectileChance)
         {
-            // projectile attack
-            GameObject projectile = Instantiate(projectilePrefab, transform.position, Quaternion.identity);
-            projectile.GetComponent<BossAttack>().SetTarget(targetPosition);
+            animator.SetTrigger("AttackTrigger"); // Play attack animation
+            StartCoroutine(FireProjectileAfterDelay(targetPosition)); 
         }
         else
         {
-            // BossRain attack
             Vector3 spawnPosition = new Vector3(targetPosition.x, 6.37f, targetPosition.z);
-            GameObject bossRain = Instantiate(bossRainPrefab, spawnPosition, Quaternion.identity);
+            Instantiate(bossRainPrefab, spawnPosition, Quaternion.identity);
         }
+    }
+
+    private IEnumerator FireProjectileAfterDelay(Vector3 targetPosition)
+    {
+        yield return new WaitForSeconds(attackAnimationDelay); 
+        GameObject projectile = Instantiate(projectilePrefab, transform.position, Quaternion.identity);
+        projectile.GetComponent<BossAttack>().SetTarget(targetPosition);
     }
 
     public void TakeDamage(int damage)
@@ -94,9 +84,8 @@ public class Boss : MonoBehaviour
         StartCoroutine(FlashPurple());
 
         currentHealth -= damage;
-        currentHealth = Mathf.Max(currentHealth, 0); // Ensure health doesn't go below 0
+        currentHealth = Mathf.Max(currentHealth, 0);
 
-        // Update health slider
         if (healthSlider != null)
         {
             healthSlider.value = currentHealth;
@@ -104,16 +93,15 @@ public class Boss : MonoBehaviour
 
         if (currentHealth <= 0)
         {
-            // Boss is defeated
             Debug.Log("Boss defeated!");
-            Destroy(gameObject); // Example action: destroy the boss object
+            Destroy(gameObject);
         }
     }
 
     private IEnumerator FlashPurple()
     {
-        spriteRenderer.color = new Color(0.494f, 0.337f, 0.604f); // Equivalent to hex #7E569A
+        spriteRenderer.color = new Color(0.494f, 0.337f, 0.604f);
         yield return new WaitForSeconds(damageFlashDuration);
-        spriteRenderer.color = originalColor; // Return to the original color after flashing
+        spriteRenderer.color = originalColor;
     }
 }
