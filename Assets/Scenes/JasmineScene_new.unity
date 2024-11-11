@@ -466,6 +466,13 @@ MonoBehaviour:
   leftSprite: {fileID: 21300000, guid: a87d7fc42450bbf45b408a3f9cf5a977, type: 3}
   centerSprite: {fileID: 21300000, guid: b83fa5b786314ee4b8b8dc9f36f1e65c, type: 3}
   rightSprite: {fileID: 21300000, guid: 1c99a4996edf4404da9d5d52112920d8, type: 3}
+  leftAttackSprite: {fileID: 21300000, guid: ac0c2016a0379b3459aae07692f1f961, type: 3}
+  centerAttackSprite: {fileID: 21300000, guid: 14a5855f69ce06845a5add34da20ea4e, type: 3}
+  rightAttackSprite: {fileID: 21300000, guid: 98574605f8b6ce342861ba31c7c5f981, type: 3}
+  leftAttackStopSprite: {fileID: 21300000, guid: 625c4ca8561684047a89f498b485cf10, type: 3}
+  centerAttackStopSprite: {fileID: 21300000, guid: abe9ac580df569340a7bc87eca48b9f9, type: 3}
+  rightAttackStopSprite: {fileID: 21300000, guid: e836b8d6ddb74bb4bb2741f2d88d9218, type: 3}
+  attackSpriteDuration: 0.2
   swordEffectDuration: 0.7
   swordEffectCooldown: 1
   bossDamageAmount: 1
@@ -991,7 +998,7 @@ GameObject:
   - component: {fileID: 790416194}
   - component: {fileID: 790416193}
   m_Layer: 0
-  m_Name: Camera_Right
+  m_Name: Camera_Left
   m_TagString: MainCamera
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1015,7 +1022,7 @@ Camera:
   m_Enabled: 1
   serializedVersion: 2
   m_ClearFlags: 1
-  m_BackGroundColor: {r: 0.8584906, g: 0.8584906, b: 0.8584906, a: 0}
+  m_BackGroundColor: {r: 0.8301887, g: 0.7784977, b: 0.7784977, a: 0}
   m_projectionMatrixMode: 1
   m_GateFitMode: 2
   m_FOVAxisMode: 0
@@ -2736,7 +2743,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_Sprite: {fileID: 21300000, guid: dc8539fa51d7e6043b73d66a2509b5a6, type: 3}
-  m_Color: {r: 0.81765753, g: 0.8301887, b: 0.82023996, a: 1}
+  m_Color: {r: 0.83137256, g: 0.82132107, b: 0.81960785, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -2966,7 +2973,7 @@ GameObject:
   - component: {fileID: 1827584308}
   - component: {fileID: 1827584307}
   m_Layer: 0
-  m_Name: Camera_Left
+  m_Name: Camera_Right
   m_TagString: MainCamera
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
