@@ -28,13 +28,11 @@ public class LeftPerson : MonoBehaviour
     [SerializeField] private Sprite leftAttackStopSprite;
     [SerializeField] private Sprite centerAttackStopSprite;
     [SerializeField] private Sprite rightAttackStopSprite;
-    [SerializeField] private float attackSpriteDuration = 0.5f; // Adjustable attack sprite display duration
+    [SerializeField] private float attackSpriteDuration = 0.5f;
 
-    private bool isSwordEffectActive = false;
     private bool isAttacking = false;
+    private bool isSwordEffectActive = false;
     [SerializeField] private float swordEffectDuration = 1.0f;
-    [SerializeField] private float swordEffectCooldown = 2.0f;
-    private float nextSwordEffectTime = 0f;
 
     private enum ActionStage { Attack, Deflect }
     private ActionStage currentStage = ActionStage.Attack;
@@ -46,7 +44,11 @@ public class LeftPerson : MonoBehaviour
     private GameObject activeShield;
 
     [SerializeField] private GameObject attackUI;
-    [SerializeField] private GameObject deflectUI; 
+    [SerializeField] private GameObject deflectUI;
+
+    private Animator animator;
+    private bool isParrying = false;
+    [SerializeField] private float parryAnimationDuration = 1.0f;
 
     private void Start()
     {
@@ -67,13 +69,16 @@ public class LeftPerson : MonoBehaviour
             Debug.LogError("Boss not found in the scene.");
         }
 
-        UpdateUI(); // Initial UI update
-        UpdateSprite(); // Initial sprite update based on starting position
+        animator = GetComponent<Animator>();
+        animator.enabled = false; // Disable Animator by default
+
+        UpdateUI();
+        UpdateSprite();
     }
 
     private void Update()
     {
-        if (Time.time >= nextMoveTime)
+        if (!isParrying && Time.time >= nextMoveTime)
         {
             if (Input.GetKeyDown(KeyCode.A) && currentPositionIndex > 0)
             {
@@ -89,14 +94,14 @@ public class LeftPerson : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.W))
         {
-            if (currentStage == ActionStage.Deflect && Time.time >= nextSwordEffectTime && !isSwordEffectActive)
+            if (currentStage == ActionStage.Deflect && !isParrying)
             {
-                StartCoroutine(ActivateSwordEffect());
-                nextSwordEffectTime = Time.time + swordEffectCooldown;
+                StopAllCoroutines();
+                StartCoroutine(PlayParryAnimation());
             }
             else if (currentStage == ActionStage.Attack)
             {
-                StopCoroutine("DisplayAttackSpriteSequence"); // Stop any ongoing sprite sequence
+                StopAllCoroutines();
                 StartCoroutine(DisplayAttackSpriteSequence());
                 AttackBoss();
             }
@@ -112,7 +117,7 @@ public class LeftPerson : MonoBehaviour
     {
         transform.position = spots[currentPositionIndex].position;
         nextMoveTime = Time.time + stopMovingTime;
-        UpdateSprite(); 
+        UpdateSprite();
     }
 
     private void ToggleStage()
@@ -128,7 +133,7 @@ public class LeftPerson : MonoBehaviour
             Debug.Log("Stage changed to Attack.");
         }
 
-        UpdateUI(); // Update UI after toggling the stage
+        UpdateUI();
     }
 
     private void UpdateUI()
@@ -139,6 +144,9 @@ public class LeftPerson : MonoBehaviour
 
     private void UpdateSprite()
     {
+        if (animator != null && animator.enabled)
+            return; // Skip updating the sprite if Animator is active
+
         switch (currentPositionIndex)
         {
             case 0:
@@ -211,8 +219,9 @@ public class LeftPerson : MonoBehaviour
 
     public void TakeDamage(int damage)
     {
-        if (isInvincible)
+        if (isInvincible || isParrying)
             return;
+
         if (currentStage != ActionStage.Deflect || !isSwordEffectActive)
         {
             health -= damage;
@@ -265,17 +274,43 @@ public class LeftPerson : MonoBehaviour
         spriteRenderer.color = Color.white;
     }
 
-    private IEnumerator ActivateSwordEffect()
+    private IEnumerator PlayParryAnimation()
     {
-        isSwordEffectActive = true;
-        spriteRenderer.color = Color.blue;
-        yield return new WaitForSeconds(swordEffectDuration);
-        spriteRenderer.color = Color.white;
-        isSwordEffectActive = false;
+        isParrying = true;
+        isSwordEffectActive = true; // Activate sword effect
+        spriteRenderer.color = Color.blue; // Visual indication of sword effect
+        animator.enabled = true; // Enable the Animator
+
+        string triggerName = "";
+        switch (currentPositionIndex)
+        {
+            case 0:
+                triggerName = "LeftParry";
+                break;
+            case 1:
+                triggerName = "CenterParry";
+                break;
+            case 2:
+                triggerName = "RightParry";
+                break;
+        }
+
+        animator.SetTrigger(triggerName);
+
+        yield return new WaitForSeconds(parryAnimationDuration);
+
+        animator.ResetTrigger(triggerName); // Reset the trigger
+        animator.enabled = false;
+        UpdateSprite(); // Update the sprite
+
+        spriteRenderer.color = Color.white; // Reset sprite color
+        isSwordEffectActive = false; // Deactivate sword effect
+        isParrying = false;
     }
 
     public bool IsSwordEffectActive()
     {
         return isSwordEffectActive;
     }
+
 }
