@@ -17,6 +17,10 @@ public class SpellManager : MonoBehaviour
     private List<Spell> currentSpells = new List<Spell>(); 
     private Dictionary<Spell, GameObject> spellToUIGameObject = new Dictionary<Spell, GameObject>();
 
+    [SerializeField] private AudioSource hitBossSound;
+    [SerializeField] private AudioSource shieldSound;
+    [SerializeField] private AudioSource healSound;
+
     private void Start()
     {
         Debug.Log("SpellManager Start: Initializing spells.");
@@ -127,18 +131,21 @@ public class SpellManager : MonoBehaviour
         switch (spell.spellType)
         {
             case SpellType.Attack:
+                hitBossSound.Play();
                 if (boss != null)
                 {
                     boss.TakeDamage(spell.damage);
                 }
                 break;
             case SpellType.Recover:
+                healSound.Play();
                 if (leftPerson != null)
                 {
                     leftPerson.RecoverHealth(10);
                 }
                 break;
             case SpellType.Shield:
+                shieldSound.Play();
                 if (leftPerson != null)
                 {
                     leftPerson.StartCoroutine(leftPerson.ActivateShield(2f));

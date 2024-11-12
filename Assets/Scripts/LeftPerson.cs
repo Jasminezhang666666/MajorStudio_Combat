@@ -17,6 +17,8 @@ public class LeftPerson : MonoBehaviour
     public Slider healthSlider;
     [SerializeField] private float damageFlashDuration = 0.2f;
 
+    private Coroutine flashCoroutine;
+
     private SpriteRenderer spriteRenderer;
 
     [SerializeField] private Sprite leftSprite;
@@ -49,6 +51,9 @@ public class LeftPerson : MonoBehaviour
     private Animator animator;
     private bool isParrying = false;
     [SerializeField] private float parryAnimationDuration = 1.0f;
+
+    [SerializeField] private AudioSource attackSound;
+    [SerializeField] private AudioSource parrySound;
 
     private void Start()
     {
@@ -97,11 +102,13 @@ public class LeftPerson : MonoBehaviour
             if (currentStage == ActionStage.Deflect && !isParrying)
             {
                 StopAllCoroutines();
+                parrySound.Play();
                 StartCoroutine(PlayParryAnimation());
             }
             else if (currentStage == ActionStage.Attack)
             {
                 StopAllCoroutines();
+                attackSound.Play();
                 StartCoroutine(DisplayAttackSpriteSequence());
                 AttackBoss();
             }
@@ -236,7 +243,12 @@ public class LeftPerson : MonoBehaviour
             }
             else
             {
-                StartCoroutine(FlashRed());
+                // Stop the ongoing flash effect if any, then start a new one
+                if (flashCoroutine != null)
+                {
+                    StopCoroutine(flashCoroutine);
+                }
+                flashCoroutine = StartCoroutine(FlashRed());
             }
         }
     }

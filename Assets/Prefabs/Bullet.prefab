@@ -103,6 +103,9 @@ MonoBehaviour:
   rightPersonHitDamage: 8
   leftPersonHitDamage: 3
   BossHitDamage: 10
+  hitBossSoundPrefab: {fileID: 7289830808410503990, guid: e274bc3279638af4a87936e82fe9d0a5, type: 3}
+  hitLeftSoundPrefab: {fileID: 7289830808410503990, guid: 80c6624bb269fdc45976774c5a796276, type: 3}
+  hitRightSoundPrefab: {fileID: 7289830808410503990, guid: cac283d7122966f45bd5b95dbbfbd6d1, type: 3}
 --- !u!54 &-4748160768685869160
 Rigidbody:
   m_ObjectHideFlags: 0

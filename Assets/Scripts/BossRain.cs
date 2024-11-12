@@ -3,7 +3,8 @@ using UnityEngine;
 public class BossRain : MonoBehaviour
 {
     [SerializeField] private float moveSpeed = 2.0f; 
-    [SerializeField] private int leftPersonHitDamage = 3; 
+    [SerializeField] private int leftPersonHitDamage = 3;
+    [SerializeField] private GameObject hitLeftSoundPrefab;
 
     private void Update()
     {
@@ -27,6 +28,7 @@ public class BossRain : MonoBehaviour
             LeftPerson leftPerson = collision.gameObject.GetComponent<LeftPerson>();
             if (leftPerson != null)
             {
+                Instantiate(hitLeftSoundPrefab, transform.position, Quaternion.identity);
                 leftPerson.TakeDamage(leftPersonHitDamage);
                 Destroy(gameObject);
             }
