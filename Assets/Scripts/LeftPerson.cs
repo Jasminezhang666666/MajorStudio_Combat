@@ -18,6 +18,8 @@ public class LeftPerson : MonoBehaviour
     [SerializeField] private float damageFlashDuration = 0.2f;
 
     private Coroutine flashCoroutine;
+    private Coroutine attackCoroutine;
+    private Coroutine parryCoroutine;
 
     private SpriteRenderer spriteRenderer;
 
@@ -101,15 +103,23 @@ public class LeftPerson : MonoBehaviour
         {
             if (currentStage == ActionStage.Deflect && !isParrying)
             {
-                StopAllCoroutines();
+                if (parryCoroutine != null)
+                {
+                    StopCoroutine(parryCoroutine);
+                    parryCoroutine = null;
+                }
                 parrySound.Play();
-                StartCoroutine(PlayParryAnimation());
+                parryCoroutine = StartCoroutine(PlayParryAnimation());
             }
             else if (currentStage == ActionStage.Attack)
             {
-                StopAllCoroutines();
+                if (attackCoroutine != null)
+                {
+                    StopCoroutine(attackCoroutine);
+                    attackCoroutine = null;
+                }
                 attackSound.Play();
-                StartCoroutine(DisplayAttackSpriteSequence());
+                attackCoroutine = StartCoroutine(DisplayAttackSpriteSequence());
                 AttackBoss();
             }
         }
