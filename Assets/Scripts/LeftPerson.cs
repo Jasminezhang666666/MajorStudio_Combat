@@ -50,6 +50,9 @@ public class LeftPerson : MonoBehaviour
     private bool isParrying = false;
     [SerializeField] private float parryAnimationDuration = 1.0f;
 
+    [SerializeField] private AudioSource attackSound;
+    [SerializeField] private AudioSource parrySound;
+
     private void Start()
     {
         spots = new Transform[3] { leftSpot, centerSpot, rightSpot };
@@ -97,11 +100,13 @@ public class LeftPerson : MonoBehaviour
             if (currentStage == ActionStage.Deflect && !isParrying)
             {
                 StopAllCoroutines();
+                parrySound.Play();
                 StartCoroutine(PlayParryAnimation());
             }
             else if (currentStage == ActionStage.Attack)
             {
                 StopAllCoroutines();
+                attackSound.Play();
                 StartCoroutine(DisplayAttackSpriteSequence());
                 AttackBoss();
             }
