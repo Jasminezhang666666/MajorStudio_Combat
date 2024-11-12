@@ -101,6 +101,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   moveSpeed: 3
   leftPersonHitDamage: 3
+  hitLeftSoundPrefab: {fileID: 7289830808410503990, guid: 80c6624bb269fdc45976774c5a796276, type: 3}
 --- !u!54 &-8358340844908510107
 Rigidbody:
   m_ObjectHideFlags: 0

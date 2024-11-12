@@ -18,6 +18,10 @@ public class BossAttack : MonoBehaviour
     private Rigidbody rb;
     private GameObject rightPersonObj;
 
+    [SerializeField] private GameObject hitBossSoundPrefab;
+    [SerializeField] private GameObject hitLeftSoundPrefab;
+    [SerializeField] private GameObject hitRightSoundPrefab;
+
     private void Start()
     {
         cameras = Camera.allCameras;
@@ -42,8 +46,6 @@ public class BossAttack : MonoBehaviour
     public void SetTarget(Vector3 target)
     {
         targetPosition = target;
-
-        // Set initial direction towards the target
         direction = (targetPosition - transform.position).normalized;
     }
 
@@ -51,32 +53,21 @@ public class BossAttack : MonoBehaviour
     {
         if (!targetReached)
         {
-            // Move towards the target pos
             transform.position += direction * speed * Time.deltaTime;
-
-            // Check if the projectile has reached the target
             if (Vector3.Distance(transform.position, targetPosition) <= 0.1f)
             {
                 targetReached = true;
-
                 transform.position = targetPosition;
-
-                // Set new direction towards RightPerson
                 direction = (rightPersonPosition - transform.position).normalized;
                 movingTowardsRightPerson = true;
             }
         }
         else if (movingTowardsRightPerson)
         {
-            // Update direction towards RightPerson
             direction = (rightPersonPosition - transform.position).normalized;
-
-            // moving towards RightPerson
             transform.position += direction * speed * Time.deltaTime;
-
         }
 
-        // Destroy if out of camera view
         if (!IsVisibleFromAnyCamera())
         {
             Destroy(gameObject);
@@ -107,13 +98,12 @@ public class BossAttack : MonoBehaviour
             {
                 if (leftPerson.IsSwordEffectActive())
                 {
-                    // Deflect projectile back toward the boss
                     DeflectTowardsBoss();
                 }
                 else
                 {
-                    // Apply damage to the LeftPerson
-                    leftPerson.TakeDamage(leftPersonHitDamage); 
+                    Instantiate(hitLeftSoundPrefab, transform.position, Quaternion.identity);
+                    leftPerson.TakeDamage(leftPersonHitDamage);
                     Destroy(gameObject);
                 }
             }
@@ -125,17 +115,18 @@ public class BossAttack : MonoBehaviour
                 Boss boss = collision.gameObject.GetComponent<Boss>();
                 if (boss != null)
                 {
-                    boss.TakeDamage(BossHitDamage); // Decrease boss health
+                    Instantiate(hitBossSoundPrefab, transform.position, Quaternion.identity);
+                    boss.TakeDamage(BossHitDamage);
                 }
                 Destroy(gameObject);
             }
         }
         else if (collision.gameObject.CompareTag("RightPerson"))
         {
-            // Handle collision with RightPerson
             RightPerson rightPerson = collision.gameObject.GetComponent<RightPerson>();
             if (rightPerson != null)
             {
+                Instantiate(hitRightSoundPrefab, transform.position, Quaternion.identity);
                 rightPerson.TakeDamage(rightPersonHitDamage);
             }
             Destroy(gameObject);
@@ -150,6 +141,4 @@ public class BossAttack : MonoBehaviour
             direction = -direction;
         }
     }
-
-
 }
