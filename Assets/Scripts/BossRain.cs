@@ -3,7 +3,7 @@ using UnityEngine;
 public class BossRain : MonoBehaviour
 {
     [SerializeField] private float moveSpeed = 2.0f; 
-    [SerializeField] private int leftPersonHitDamage = 3;
+    [SerializeField] private int leftPersonHitDamage = 10;
     [SerializeField] private GameObject hitLeftSoundPrefab;
 
     private void Update()

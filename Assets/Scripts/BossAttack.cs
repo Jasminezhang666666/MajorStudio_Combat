@@ -1,12 +1,9 @@
 using UnityEngine;
-using System.Linq;
 
 public class BossAttack : MonoBehaviour
 {
     [SerializeField] private float speed = 5f;
-    [SerializeField] private int rightPersonHitDamage = 8;
-    [SerializeField] private int leftPersonHitDamage = 3;
-    [SerializeField] private int BossHitDamage = 10;
+    [SerializeField] private int BossHitDamage = 20;
 
     private Vector3 direction;
     private Vector3 targetPosition;
@@ -31,15 +28,10 @@ public class BossAttack : MonoBehaviour
         rb.collisionDetectionMode = CollisionDetectionMode.Continuous;
         rb.constraints = RigidbodyConstraints.FreezeRotation;
 
-        // Find the RightPerson in the scene
         rightPersonObj = GameObject.FindWithTag("RightPerson");
         if (rightPersonObj != null)
         {
             rightPersonPosition = rightPersonObj.transform.position;
-        }
-        else
-        {
-            Debug.LogError("RightPerson not found in the scene. Please make sure RightPerson has the correct tag.");
         }
     }
 
@@ -100,10 +92,31 @@ public class BossAttack : MonoBehaviour
                 {
                     DeflectTowardsBoss();
                 }
+                else if (leftPerson.IsInvincible)
+                {
+                    Destroy(gameObject);
+                }
                 else
                 {
                     Instantiate(hitLeftSoundPrefab, transform.position, Quaternion.identity);
-                    leftPerson.TakeDamage(leftPersonHitDamage);
+                    leftPerson.TakeDamage(20);
+                    Destroy(gameObject);
+                }
+            }
+        }
+        else if (collision.gameObject.CompareTag("RightPerson"))
+        {
+            RightPerson rightPerson = collision.gameObject.GetComponent<RightPerson>();
+            if (rightPerson != null)
+            {
+                if (rightPerson.IsInvincible)
+                {
+                    Destroy(gameObject);
+                }
+                else
+                {
+                    Instantiate(hitRightSoundPrefab, transform.position, Quaternion.identity);
+                    rightPerson.TakeDamage(20);  
                     Destroy(gameObject);
                 }
             }
@@ -120,16 +133,6 @@ public class BossAttack : MonoBehaviour
                 }
                 Destroy(gameObject);
             }
-        }
-        else if (collision.gameObject.CompareTag("RightPerson"))
-        {
-            RightPerson rightPerson = collision.gameObject.GetComponent<RightPerson>();
-            if (rightPerson != null)
-            {
-                Instantiate(hitRightSoundPrefab, transform.position, Quaternion.identity);
-                rightPerson.TakeDamage(rightPersonHitDamage);
-            }
-            Destroy(gameObject);
         }
     }
 

@@ -246,9 +246,6 @@ public class LockPattern : MonoBehaviour
             SpellManager spellManager = FindObjectOfType<SpellManager>();
             if (spellManager != null)
             {
-                // Deduct mana here
-                spellManager.DeductMana();
-
                 // Check if the pattern matches any spell
                 bool spellMatched = spellManager.CheckPattern(playerPattern);
                 if (!spellMatched)

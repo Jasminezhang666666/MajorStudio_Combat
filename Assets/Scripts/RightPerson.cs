@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections;
+using UnityEngine.UI;
 
 public class RightPerson : MonoBehaviour
 {
@@ -8,7 +9,8 @@ public class RightPerson : MonoBehaviour
     [SerializeField] private float delayTime = 0.5f;
     private SpriteRenderer spriteRenderer;
     private Coroutine spriteSwitchCoroutine;
-    private LeftPerson leftPerson;
+    private LeftPerson leftPerson;  // Reference to LeftPerson
+
     [SerializeField] private float damageFlashDuration = 0.2f;
     private bool isInvincible = false;
     public GameObject shieldPrefab;
@@ -50,9 +52,10 @@ public class RightPerson : MonoBehaviour
     {
         if (isInvincible)
             return;
+
         if (leftPerson != null)
         {
-            leftPerson.TakeDamage(damage);
+            leftPerson.TakeDamage(damage);  // Deduct health from LeftPerson
             StartCoroutine(FlashRed());
         }
     }
@@ -64,6 +67,7 @@ public class RightPerson : MonoBehaviour
         {
             activeShield = Instantiate(shieldPrefab, transform);
             activeShield.transform.localPosition = Vector3.zero;
+            activeShield.transform.localScale = Vector3.one;
         }
         yield return new WaitForSeconds(duration);
         if (activeShield != null)
@@ -73,10 +77,22 @@ public class RightPerson : MonoBehaviour
         isInvincible = false;
     }
 
+    public IEnumerator ChangeColorTemporary(Color color, float duration)
+    {
+        spriteRenderer.color = color;
+        yield return new WaitForSeconds(duration);
+        spriteRenderer.color = Color.white;
+    }
+
     private IEnumerator FlashRed()
     {
         spriteRenderer.color = Color.red;
         yield return new WaitForSeconds(damageFlashDuration);
         spriteRenderer.color = Color.white;
+    }
+
+    public bool IsInvincible
+    {
+        get { return isInvincible; }
     }
 }

@@ -57,6 +57,8 @@ public class LeftPerson : MonoBehaviour
     [SerializeField] private AudioSource attackSound;
     [SerializeField] private AudioSource parrySound;
 
+    private GameManager gameManager;
+
     private void Start()
     {
         spots = new Transform[3] { leftSpot, centerSpot, rightSpot };
@@ -71,20 +73,25 @@ public class LeftPerson : MonoBehaviour
         }
 
         boss = GameObject.FindObjectOfType<Boss>();
-        if (boss == null)
-        {
-            Debug.LogError("Boss not found in the scene.");
-        }
 
         animator = GetComponent<Animator>();
-        animator.enabled = false; // Disable Animator by default
+        animator.enabled = false;
 
         UpdateUI();
         UpdateSprite();
+
+        gameManager = FindObjectOfType<GameManager>();
+        if (gameManager == null)
+        {
+            Debug.LogError("GameManager not found in the scene.");
+        }
     }
 
     private void Update()
     {
+        if (gameManager != null && gameManager.GameEnded)
+            return;
+
         if (!isParrying && Time.time >= nextMoveTime)
         {
             if (Input.GetKeyDown(KeyCode.A) && currentPositionIndex > 0)
@@ -108,7 +115,8 @@ public class LeftPerson : MonoBehaviour
                     StopCoroutine(parryCoroutine);
                     parryCoroutine = null;
                 }
-                parrySound.Play();
+                if (parrySound != null)
+                    parrySound.Play();
                 parryCoroutine = StartCoroutine(PlayParryAnimation());
             }
             else if (currentStage == ActionStage.Attack)
@@ -118,7 +126,8 @@ public class LeftPerson : MonoBehaviour
                     StopCoroutine(attackCoroutine);
                     attackCoroutine = null;
                 }
-                attackSound.Play();
+                if (attackSound != null)
+                    attackSound.Play();
                 attackCoroutine = StartCoroutine(DisplayAttackSpriteSequence());
                 AttackBoss();
             }
@@ -142,12 +151,10 @@ public class LeftPerson : MonoBehaviour
         if (currentStage == ActionStage.Attack)
         {
             currentStage = ActionStage.Deflect;
-            Debug.Log("Stage changed to Deflect.");
         }
         else
         {
             currentStage = ActionStage.Attack;
-            Debug.Log("Stage changed to Attack.");
         }
 
         UpdateUI();
@@ -155,14 +162,16 @@ public class LeftPerson : MonoBehaviour
 
     private void UpdateUI()
     {
-        attackUI.SetActive(currentStage == ActionStage.Attack);
-        deflectUI.SetActive(currentStage == ActionStage.Deflect);
+        if (attackUI != null)
+            attackUI.SetActive(currentStage == ActionStage.Attack);
+        if (deflectUI != null)
+            deflectUI.SetActive(currentStage == ActionStage.Deflect);
     }
 
     private void UpdateSprite()
     {
         if (animator != null && animator.enabled)
-            return; // Skip updating the sprite if Animator is active
+            return;
 
         switch (currentPositionIndex)
         {
@@ -183,7 +192,6 @@ public class LeftPerson : MonoBehaviour
         if (boss != null)
         {
             boss.TakeDamage(bossDamageAmount);
-            Debug.Log("Boss took damage: " + bossDamageAmount);
         }
     }
 
@@ -249,11 +257,14 @@ public class LeftPerson : MonoBehaviour
             }
             if (health <= 0)
             {
-                Debug.Log("Player has been defeated!");
+                GameManager gameManager = FindObjectOfType<GameManager>();
+                if (gameManager != null)
+                {
+                    gameManager.Defeat();
+                }
             }
             else
             {
-                // Stop the ongoing flash effect if any, then start a new one
                 if (flashCoroutine != null)
                 {
                     StopCoroutine(flashCoroutine);
@@ -262,6 +273,7 @@ public class LeftPerson : MonoBehaviour
             }
         }
     }
+
 
     public void RecoverHealth(int amount)
     {
@@ -280,6 +292,7 @@ public class LeftPerson : MonoBehaviour
         {
             activeShield = Instantiate(shieldPrefab, transform);
             activeShield.transform.localPosition = Vector3.zero;
+            activeShield.transform.localScale = Vector3.one;
         }
         yield return new WaitForSeconds(duration);
         if (activeShield != null)
@@ -287,6 +300,13 @@ public class LeftPerson : MonoBehaviour
             Destroy(activeShield);
         }
         isInvincible = false;
+    }
+
+    public IEnumerator ChangeColorTemporary(Color color, float duration)
+    {
+        spriteRenderer.color = color;
+        yield return new WaitForSeconds(duration);
+        spriteRenderer.color = Color.white;
     }
 
     private IEnumerator FlashRed()
@@ -299,9 +319,8 @@ public class LeftPerson : MonoBehaviour
     private IEnumerator PlayParryAnimation()
     {
         isParrying = true;
-        isSwordEffectActive = true; // Activate sword effect
-        spriteRenderer.color = Color.blue; // Visual indication of sword effect
-        animator.enabled = true; // Enable the Animator
+        isSwordEffectActive = true;
+        animator.enabled = true;
 
         string triggerName = "";
         switch (currentPositionIndex)
@@ -321,18 +340,22 @@ public class LeftPerson : MonoBehaviour
 
         yield return new WaitForSeconds(parryAnimationDuration);
 
-        animator.ResetTrigger(triggerName); // Reset the trigger
+        animator.ResetTrigger(triggerName);
         animator.enabled = false;
-        UpdateSprite(); // Update the sprite
+        UpdateSprite();
 
-        spriteRenderer.color = Color.white; // Reset sprite color
-        isSwordEffectActive = false; // Deactivate sword effect
+        isSwordEffectActive = false;
         isParrying = false;
     }
 
     public bool IsSwordEffectActive()
     {
         return isSwordEffectActive;
+    }
+
+    public bool IsInvincible
+    {
+        get { return isInvincible; }
     }
 
 }

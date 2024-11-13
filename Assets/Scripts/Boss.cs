@@ -25,8 +25,9 @@ public class Boss : MonoBehaviour
     [SerializeField] private LeftPerson leftPerson;
 
     private Animator animator;
+    private GameManager gameManager;
 
-    [SerializeField] private float attackAnimationDelay = 0.7f; // Delay before firing projectile after animation starts
+    [SerializeField] private float attackAnimationDelay = 0.7f; 
 
     private void Start()
     {
@@ -41,10 +42,18 @@ public class Boss : MonoBehaviour
             healthSlider.maxValue = maxHealth;
             healthSlider.value = currentHealth;
         }
+        gameManager = FindObjectOfType<GameManager>();
+        if (gameManager == null)
+        {
+            Debug.LogError("GameManager not found in the scene.");
+        }
     }
 
     private void Update()
     {
+        if (gameManager != null && gameManager.GameEnded)
+            return;
+
         if (Time.time >= nextFireTime)
         {
             ShootAtPlayer();
@@ -93,10 +102,15 @@ public class Boss : MonoBehaviour
 
         if (currentHealth <= 0)
         {
-            Debug.Log("Boss defeated!");
+            GameManager gameManager = FindObjectOfType<GameManager>();
+            if (gameManager != null)
+            {
+                gameManager.Victory();
+            }
             Destroy(gameObject);
         }
     }
+
 
     private IEnumerator FlashPurple()
     {
