@@ -107,7 +107,6 @@ public class Boss : MonoBehaviour
             {
                 gameManager.Victory();
             }
-            Destroy(gameObject);
         }
     }
 
@@ -118,4 +117,10 @@ public class Boss : MonoBehaviour
         yield return new WaitForSeconds(damageFlashDuration);
         spriteRenderer.color = originalColor;
     }
+
+    public void PlayDyingAnimation()
+    {
+        animator.SetTrigger("DyingTrigger"); 
+    }
+
 }
