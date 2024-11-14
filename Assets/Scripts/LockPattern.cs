@@ -24,6 +24,9 @@ public class LockPattern : MonoBehaviour
 
     public RightPerson rightPerson;
 
+    public float lineThickness = 2.0f;
+
+
     void Start()
     {
         circles = new Dictionary<int, CircleIdentifier>();
@@ -70,7 +73,7 @@ public class LockPattern : MonoBehaviour
             Vector2 direction = mousePos - startPos;
             float distance = direction.magnitude;
 
-            lineOnEditRcTs.sizeDelta = new Vector2(lineOnEditRcTs.sizeDelta.x, distance);
+            lineOnEditRcTs.sizeDelta = new Vector2(lineThickness, distance);
             lineOnEditRcTs.anchoredPosition = startPos;
             lineOnEditRcTs.rotation = Quaternion.FromToRotation(Vector3.up, direction.normalized);
         }
@@ -83,6 +86,8 @@ public class LockPattern : MonoBehaviour
         var lineRcTs = line.GetComponent<RectTransform>();
         lineRcTs.pivot = new Vector2(0.5f, 0f); // Set pivot to top-center
         lineRcTs.anchoredPosition = pos;
+
+        lineRcTs.sizeDelta = new Vector2(lineThickness, 0f);
 
         var lineIdentifier = line.AddComponent<CircleIdentifier>();
         lineIdentifier.id = id;
@@ -98,6 +103,7 @@ public class LockPattern : MonoBehaviour
 
         return line;
     }
+
 
     void TrySetLineEdit(CircleIdentifier circle)
     {
@@ -176,7 +182,7 @@ public class LockPattern : MonoBehaviour
             Vector2 direction = endPos - startPos;
             float distance = direction.magnitude;
 
-            lineOnEditRcTs.sizeDelta = new Vector2(lineOnEditRcTs.sizeDelta.x, distance);
+            lineOnEditRcTs.sizeDelta = new Vector2(lineThickness, distance);
             lineOnEditRcTs.anchoredPosition = startPos;
             lineOnEditRcTs.rotation = Quaternion.FromToRotation(Vector3.up, direction.normalized);
 
@@ -186,6 +192,7 @@ public class LockPattern : MonoBehaviour
             rightPerson.UpdateSpriteWithDelay(idf.id);
         }
     }
+
 
     public void OnMouseDownCircle(CircleIdentifier idf)
     {
